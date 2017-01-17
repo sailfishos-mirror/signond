@@ -24,6 +24,7 @@
 #define SIGNON_MOCK_ACCESS_CONTROL_MANAGER_H
 
 #include <SignOn/AbstractAccessControlManager>
+#include <sys/types.h>
 
 class AccessControlManager: public SignOn::AbstractAccessControlManager
 {
