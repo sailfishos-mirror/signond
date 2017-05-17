@@ -7,7 +7,7 @@ SUBDIRS = \
     tst_database.pro \
     access-control.pro \
 
-system(pkg-config --exists libqtdbusmock-1) {
+system($$pkgConfigExecutable() --exists libqtdbusmock-1) {
     SUBDIRS += \
         session_tool.pro \
         tst_signond.pro
