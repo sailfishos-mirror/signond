@@ -14,9 +14,11 @@ RCC_DIR         = resources
 # we don't like warnings...
 QMAKE_CXXFLAGS -= -Werror -Wno-write-strings
 # Disable RTTI
-QMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
+QMAKE_CXXFLAGS += -fno-rtti
+# Disable exceptions
+CONFIG += exceptions_off
 # Use C++11
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++11
 
 isEmpty(TOP_SRC_DIR) {
     TOP_SRC_DIR = $$PWD
@@ -55,11 +57,9 @@ exists( meego-release ) {
     ARCH = $$system(uname -m)
 }
 
-contains( ARCH, x86_64 ) {
-    INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib64
-} else {
-    INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
-}
+linux-g++-64|linux-icc-64: INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib64
+else: linux-g++-32|linux-icc-32: INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib32
+else: INSTALL_LIBDIR = $${INSTALL_PREFIX}/lib
 
 # default library directory can be overriden by defining LIBDIR when
 # running qmake
