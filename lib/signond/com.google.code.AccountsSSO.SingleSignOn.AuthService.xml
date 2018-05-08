@@ -16,17 +16,20 @@
     <!--
       registerNewIdentity:
       @short_description: Create a new Identity.
+      @applicationContext: the application security context
       @objectPath: the D-Bus object path of the new Identity
 
       Create a new (empty) Identity in the Signon database.
     -->
     <method name="registerNewIdentity">
+      <arg name="applicationContext" type="s" direction="in"/>
       <arg name="objectPath" type="o" direction="out"/>
     </method>
     <!--
       getIdentity:
       @short_description: Get an Identity from the Signon database.
       @id: the ID of the Identity in the Signon database
+      @applicationContext: the application security context
       @objectPath: the D-Bus object path for the Identity
       @identityData: the information associated with the Identity
 
@@ -35,6 +38,7 @@
     -->
     <method name="getIdentity">
       <arg name="id" type="u" direction="in"/>
+      <arg name="applicationContext" type="s" direction="in"/>
       <arg name="objectPath" type="o" direction="out"/>
       <arg name="identityData" type="a{sv}" direction="out"/>
     </method>
@@ -79,14 +83,16 @@
     <!--
       queryIdentities:
       @short_description: Request an array of stored identities.
-      @identites: the list of stored identities
       @filter: the filter to apply to the returned identities
+      @applicationContext: the application security context
+      @identites: the list of stored identities
 
       Request an array of identities which are stored in the Signon database.
     -->
     <method name="queryIdentities">
-      <arg name="identities" type="aa{sv}" direction="out"/>
       <arg name="filter" type="a{sv}" direction="in"/>
+      <arg name="applicationContext" type="s" direction="in"/>
+      <arg name="identities" type="aa{sv}" direction="out"/>
       <annotation name="com.trolltech.QtDBus.QtTypeName.In0" value="QVariantMap"/>
     </method>
     <!--

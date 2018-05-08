@@ -49,14 +49,17 @@ public:
         { return *static_cast<QDBusContext *>(m_parent); }
 
 public Q_SLOTS:
-    void registerNewIdentity(QDBusObjectPath &objectPath);
-    void getIdentity(const quint32 id, QDBusObjectPath &objectPath,
+    void registerNewIdentity(const QString &applicationContext,
+                             QDBusObjectPath &objectPath);
+    void getIdentity(const quint32 id, const QString &applicationContext,
+                     QDBusObjectPath &objectPath,
                      QVariantMap &identityData);
     QString getAuthSessionObjectPath(const quint32 id, const QString &type);
 
     QStringList queryMethods();
     QStringList queryMechanisms(const QString &method);
-    void queryIdentities(const QVariantMap &filter);
+    void queryIdentities(const QVariantMap &filter,
+                         const QString &applicationContext);
     bool clear();
 
 private:

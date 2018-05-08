@@ -531,6 +531,8 @@ bool IdentityImpl::sendRegisterRequest()
         args << m_identityInfo->id();
     }
 
+    /* TODO: implement the application security context */
+    args << QLatin1String("*");
     SignondAsyncDBusProxy *authService =
         new SignondAsyncDBusProxy(SIGNOND_DAEMON_INTERFACE_C, this);
     authService->setObjectPath(QDBusObjectPath(SIGNOND_DAEMON_OBJECTPATH));

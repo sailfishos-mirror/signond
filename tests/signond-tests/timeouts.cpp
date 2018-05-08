@@ -88,6 +88,7 @@ void TimeoutsTest::identityTimeout()
                                                       "getIdentity");
     QList<QVariant> args;
     args << identity->id();
+    args << QString("application_security_context");
     msg.setArguments(args);
 
     QDBusMessage reply = conn.call(msg);
@@ -162,6 +163,7 @@ void TimeoutsTest::identityRegisterTwice()
                                                       "getIdentity");
     QList<QVariant> args;
     args << identity->id();
+    args << QString("application_security_context");
     msg.setArguments(args);
 
     QDBusMessage reply = conn.call(msg);
@@ -217,6 +219,7 @@ bool TimeoutsTest::triggerDisposableCleanup()
                                                       SIGNOND_DAEMON_OBJECTPATH,
                                                       SIGNOND_DAEMON_INTERFACE,
                                                       "registerNewIdentity");
+    msg << QString("application_security_context");
     QDBusMessage reply = conn.call(msg);
     return (reply.type() == QDBusMessage::ReplyMessage);
 }

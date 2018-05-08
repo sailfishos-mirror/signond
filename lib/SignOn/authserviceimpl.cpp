@@ -126,6 +126,8 @@ void AuthServiceImpl::queryIdentities(const AuthService::IdentityFilter &filter)
     }
 
     args << filterMap;
+    /* TODO: implement the application security context */
+    args << QLatin1String("*");
 
     sendRequest(QLatin1String("queryIdentities"),
                 SLOT(queryIdentitiesReply(QDBusPendingCallWatcher*)),

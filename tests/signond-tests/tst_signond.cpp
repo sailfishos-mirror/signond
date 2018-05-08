@@ -188,6 +188,7 @@ QString SignondTest::createIdentity(const QVariantMap &data, uint *id)
     QDBusMessage msg = methodCall(SIGNOND_DAEMON_OBJECTPATH,
                                   SIGNOND_DAEMON_INTERFACE,
                                   "registerNewIdentity");
+    msg << QString("application_security_context");
     QDBusMessage reply = connection().call(msg);
     if (!replyIsValid(reply)) return QString();
 
@@ -276,6 +277,7 @@ void SignondTest::testIdentityCreation()
     QDBusMessage msg = methodCall(SIGNOND_DAEMON_OBJECTPATH,
                                   SIGNOND_DAEMON_INTERFACE,
                                   "registerNewIdentity");
+    msg << QString("application_security_context");
     QDBusMessage reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
 
@@ -310,6 +312,7 @@ void SignondTest::testIdentityCreation()
     msg = methodCall(SIGNOND_DAEMON_OBJECTPATH, SIGNOND_DAEMON_INTERFACE,
                      "getIdentity");
     msg << id;
+    msg << QString("application_security_context");
     reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
 
@@ -324,6 +327,7 @@ void SignondTest::testIdentityCreation()
     msg = methodCall(SIGNOND_DAEMON_OBJECTPATH, SIGNOND_DAEMON_INTERFACE,
                      "queryIdentities");
     msg << QVariantMap();
+    msg << QString("application_security_context");
     reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
 
@@ -371,6 +375,7 @@ void SignondTest::testIdentityRemoval()
     msg = methodCall(SIGNOND_DAEMON_OBJECTPATH, SIGNOND_DAEMON_INTERFACE,
                      "getIdentity");
     msg << id;
+    msg << QString("application_security_context");
     reply = connection().call(msg);
     QCOMPARE(reply.type(), QDBusMessage::ErrorMessage);
 }

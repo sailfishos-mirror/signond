@@ -40,8 +40,11 @@ SignonDaemonAdaptor::~SignonDaemonAdaptor()
 {
 }
 
-void SignonDaemonAdaptor::registerNewIdentity(QDBusObjectPath &objectPath)
+void SignonDaemonAdaptor::registerNewIdentity(const QString &applicationContext,
+                                              QDBusObjectPath &objectPath)
 {
+    Q_UNUSED(applicationContext);
+
     QObject *identity = m_parent->registerNewIdentity();
     objectPath = registerObject(parentDBusContext().connection(), identity);
 
@@ -101,9 +104,12 @@ SignonDaemonAdaptor::registerObject(const QDBusConnection &connection,
 }
 
 void SignonDaemonAdaptor::getIdentity(const quint32 id,
+                                      const QString &applicationContext,
                                       QDBusObjectPath &objectPath,
                                       QVariantMap &identityData)
 {
+    Q_UNUSED(applicationContext);
+
     AccessControlManagerHelper *acm = AccessControlManagerHelper::instance();
     QDBusMessage msg = parentDBusContext().message();
     QDBusConnection conn = parentDBusContext().connection();
@@ -235,8 +241,11 @@ QStringList SignonDaemonAdaptor::queryMechanisms(const QString &method)
     return mechanisms;
 }
 
-void SignonDaemonAdaptor::queryIdentities(const QVariantMap &filter)
+void SignonDaemonAdaptor::queryIdentities(const QVariantMap &filter,
+                                          const QString &applicationContext)
 {
+    Q_UNUSED(applicationContext);
+
     /* Access Control */
     QDBusMessage msg = parentDBusContext().message();
     QDBusConnection conn = parentDBusContext().connection();
