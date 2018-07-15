@@ -54,7 +54,9 @@ public Q_SLOTS:
     void getIdentity(const quint32 id, const QString &applicationContext,
                      QDBusObjectPath &objectPath,
                      QVariantMap &identityData);
-    QString getAuthSessionObjectPath(const quint32 id, const QString &type);
+    QDBusObjectPath getAuthSessionObjectPath(const quint32 id,
+                                             const QString &applicationContext,
+                                             const QString &type);
 
     QStringList queryMethods();
     QStringList queryMechanisms(const QString &method);

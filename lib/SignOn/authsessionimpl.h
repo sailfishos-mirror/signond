@@ -55,7 +55,8 @@ class AuthSessionImpl: public QObject
 
 public:
     AuthSessionImpl(AuthSession *parent, quint32 id,
-                    const QString &methodName);
+                    const QString &methodName,
+                    const QString &applicationContext = QStringLiteral("*"));
     ~AuthSessionImpl();
 
 public Q_SLOTS:
@@ -85,6 +86,7 @@ private:
     AuthSession *m_parent;
     SignondAsyncDBusProxy m_dbusProxy;
     quint32 m_id;
+    QString m_applicationContext;
     QString m_methodName;
 
     /*

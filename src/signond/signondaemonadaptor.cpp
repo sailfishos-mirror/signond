@@ -166,9 +166,12 @@ QStringList SignonDaemonAdaptor::queryMethods()
     return m_parent->queryMethods();
 }
 
-QString SignonDaemonAdaptor::getAuthSessionObjectPath(const quint32 id,
-                                                      const QString &type)
+QDBusObjectPath SignonDaemonAdaptor::getAuthSessionObjectPath(const quint32 id,
+                                             const QString &applicationContext,
+                                             const QString &type)
 {
+    Q_UNUSED(applicationContext);
+
     SignonDisposable::destroyUnused();
 
     AccessControlManagerHelper *acm = AccessControlManagerHelper::instance();
@@ -186,17 +189,16 @@ QString SignonDaemonAdaptor::getAuthSessionObjectPath(const quint32 id,
             QObject::connect(reply, SIGNAL(finished()),
                              this, SLOT(onAuthSessionAccessReplyFinished()));
             msg.setDelayedReply(true);
-            return QString();
+            return QDBusObjectPath();
         }
     }
 
     TRACE() << "ACM passed, creating AuthSession object";
     pid_t ownerPid = acm->pidOfPeer(conn, msg);
     QObject *authSession = m_parent->getAuthSession(id, type, ownerPid);
-    if (handleLastError(conn, msg)) return QString();
+    if (handleLastError(conn, msg)) return QDBusObjectPath();
 
-    QDBusObjectPath objectPath = registerObject(conn, authSession);
-    return objectPath.path();
+    return registerObject(conn, authSession);
 }
 
 void SignonDaemonAdaptor::onAuthSessionAccessReplyFinished()

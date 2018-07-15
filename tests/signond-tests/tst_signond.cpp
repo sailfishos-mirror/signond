@@ -447,13 +447,14 @@ void SignondTest::testAuthSessionMechanisms()
                                   SIGNOND_DAEMON_INTERFACE,
                                   "getAuthSessionObjectPath");
     msg << uint(0);
+    msg << QString("*");
     msg << method;
     QDBusMessage reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
 
     QCOMPARE(reply.arguments().count(), 1);
 
-    QString objectPath = reply.arguments()[0].toString();
+    QString objectPath = reply.arguments()[0].value<QDBusObjectPath>().path();
     QVERIFY(objectPath.startsWith('/'));
 
     /* Check the available mechanisms */
@@ -473,13 +474,14 @@ void SignondTest::testAuthSessionProcess()
                                   SIGNOND_DAEMON_INTERFACE,
                                   "getAuthSessionObjectPath");
     msg << uint(0);
+    msg << QString("*");
     msg << QString("ssotest");
     QDBusMessage reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
 
     QCOMPARE(reply.arguments().count(), 1);
 
-    QString objectPath = reply.arguments()[0].toString();
+    QString objectPath = reply.arguments()[0].value<QDBusObjectPath>().path();
     QVERIFY(objectPath.startsWith('/'));
 
     QVariantMap sessionData {
@@ -505,13 +507,14 @@ void SignondTest::testAuthSessionProcessFromOtherProcess()
                                   SIGNOND_DAEMON_INTERFACE,
                                   "getAuthSessionObjectPath");
     msg << uint(0);
+    msg << QString("*");
     msg << QString("ssotest");
     QDBusMessage reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
 
     QCOMPARE(reply.arguments().count(), 1);
 
-    QString objectPath = reply.arguments()[0].toString();
+    QString objectPath = reply.arguments()[0].value<QDBusObjectPath>().path();
     QVERIFY(objectPath.startsWith('/'));
 
     /* Pass this object path to another process, and verify that it's not
@@ -534,10 +537,11 @@ void SignondTest::testAuthSessionProcessUi()
                                   SIGNOND_DAEMON_INTERFACE,
                                   "getAuthSessionObjectPath");
     msg << uint(0);
+    msg << QString("*");
     msg << QString("ssotest");
     QDBusMessage reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
-    QString objectPath = reply.arguments()[0].toString();
+    QString objectPath = reply.arguments()[0].value<QDBusObjectPath>().path();
     QVERIFY(objectPath.startsWith('/'));
 
     /* prepare SignOnUi */
@@ -620,10 +624,11 @@ void SignondTest::testAuthSessionCloseUi()
                                   SIGNOND_DAEMON_INTERFACE,
                                   "getAuthSessionObjectPath");
     msg << uint(0);
+    msg << QString("*");
     msg << QString("ssotest");
     QDBusMessage reply = connection().call(msg);
     QVERIFY(replyIsValid(reply));
-    QString objectPath = reply.arguments()[0].toString();
+    QString objectPath = reply.arguments()[0].value<QDBusObjectPath>().path();
     QVERIFY(objectPath.startsWith('/'));
 
     /* prepare SignOnUi */

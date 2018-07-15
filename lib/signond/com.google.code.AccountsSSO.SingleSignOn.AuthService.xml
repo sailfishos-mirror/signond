@@ -52,9 +52,9 @@
       Return a D-Bus object path for a newly-created AuthSession.
     -->
     <method name="getAuthSessionObjectPath">
-      <!-- FIXME: Should be a 'o' typei for object paths. -->
-      <arg name="path" type="s" direction="out"/>
+      <arg name="path" type="o" direction="out"/>
       <arg name="id" type="u" direction="in"/>
+      <arg name="applicationContext" type="s" direction="in"/>
       <arg name="type" type="s" direction="in"/>
     </method>
     <!--

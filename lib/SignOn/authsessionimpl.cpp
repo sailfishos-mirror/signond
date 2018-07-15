@@ -45,12 +45,16 @@ static QVariantMap sessionData2VariantMap(const SessionData &data)
 
 AuthSessionImpl::AuthSessionImpl(AuthSession *parent,
                                  quint32 id,
-                                 const QString &methodName):
+                                 const QString &methodName,
+                                 const QString &applicationContext):
     QObject(parent),
     m_parent(parent),
     m_dbusProxy(SIGNOND_AUTH_SESSION_INTERFACE_C,
                 this),
+    m_id(id),
+    m_applicationContext(applicationContext),
     m_methodName(methodName),
+    m_isAuthInProcessing(false),
     m_processCall(0)
 {
     m_dbusProxy.connect("stateChanged", this,
@@ -59,9 +63,6 @@ AuthSessionImpl::AuthSessionImpl(AuthSession *parent,
                         SLOT(unregisteredSlot()));
     QObject::connect(&m_dbusProxy, SIGNAL(objectPathNeeded()),
                      this, SLOT(initInterface()));
-
-    m_id = id;
-    m_isAuthInProcessing = false;
 
     initInterface();
 }
@@ -99,6 +100,7 @@ bool AuthSessionImpl::initInterface()
     QLatin1String operation("getAuthSessionObjectPath");
     QVariantList arguments;
     arguments += m_id;
+    arguments += m_applicationContext;
     arguments += m_methodName;
 
     SignondAsyncDBusProxy *authService =
@@ -261,8 +263,8 @@ void AuthSessionImpl::errorSlot(const QDBusError &err)
 
 void AuthSessionImpl::authenticationSlot(QDBusPendingCallWatcher *call)
 {
-    QDBusPendingReply<QString> reply = *call;
-    m_dbusProxy.setObjectPath(QDBusObjectPath(reply.argumentAt<0>()));
+    QDBusPendingReply<QDBusObjectPath> reply = *call;
+    m_dbusProxy.setObjectPath(reply.argumentAt<0>());
 
     m_isAuthInProcessing = false;
 }
