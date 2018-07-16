@@ -17,9 +17,9 @@ INCLUDEPATH += . \
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 
 OTHER_FILES = \
-    com.google.code.AccountsSSO.SingleSignOn.AuthService.xml \
-    com.google.code.AccountsSSO.SingleSignOn.AuthSession.xml \
-    com.google.code.AccountsSSO.SingleSignOn.Identity.xml
+    interfaces/com.google.code.AccountsSSO.SingleSignOn.AuthService.xml \
+    interfaces/com.google.code.AccountsSSO.SingleSignOn.AuthSession.xml \
+    interfaces/com.google.code.AccountsSSO.SingleSignOn.Identity.xml
 
 headers.files = $$public_headers
 headers.path = $${INSTALL_PREFIX}/include/signond
