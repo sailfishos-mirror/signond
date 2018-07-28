@@ -1,0 +1,29 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+export NO_DOCS := no
+export QMAKE_LIBDIR=/usr/lib
+export DPKG_GENSYMBOLS_CHECK_LEVEL=4
+export QT_SELECT=qt5
+
+override_dh_auto_configure:
+	mkdir -p build
+	dh_auto_configure -Bbuild -- LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH) \
+		BUILD_DIR=build \
+		CONFIG+=enable-p2p \
+		"QMAKE_CXXFLAGS=$(CFLAGS)" ../signon.pro
+
+override_dh_install:
+	rm -f debian/tmp/usr/include/signon-plugins/*example*.h
+	rm -f debian/tmp/usr/include/signon-plugins/*test*.h
+	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/libsignon-qt*.*a
+	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/signon/libexampleplugin.so
+	dh_install --fail-missing
+
+%:
+	dh $@ -Bbuild --parallel --with migrations
