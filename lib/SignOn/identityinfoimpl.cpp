@@ -23,6 +23,8 @@
 #include "debug.h"
 #include "identityinfoimpl.h"
 #include "identityinfo.h"
+#include "securitycontext.h"
+#include "securitycontextpriv.h"
 
 #include <QDBusMetaType>
 #include <QVariant>
@@ -34,6 +36,7 @@ IdentityInfoImpl::IdentityInfoImpl():
     QVariantMap()
 {
     qDBusRegisterMetaType<SignOn::MethodMap>();
+    qDBusRegisterMetaType<SignOn::SecurityContextList>();
 }
 
 IdentityInfoImpl::~IdentityInfoImpl()
@@ -75,6 +78,9 @@ void IdentityInfoImpl::updateFromMap(const QVariantMap &map)
             if (i.key() == SIGNOND_IDENTITY_INFO_AUTHMETHODS) {
                 MethodMap methodMap = qdbus_cast<MethodMap>(container);
                 setMethods(methodMap);
+            } else if (i.key() == SIGNOND_IDENTITY_INFO_ACL) {
+                SecurityContextList list = qdbus_cast<SecurityContextList>(container);
+                setAccessControlList(list);
             } else {
                 BLAME() << "Found unsupported QDBusArgument in key" << i.key();
             }

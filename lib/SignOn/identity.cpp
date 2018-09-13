@@ -21,9 +21,13 @@
  * 02110-1301 USA
  */
 
+#include <QDBusMetaType>
+
 #include "debug.h"
 #include "identityimpl.h"
 #include "identity.h"
+#include "securitycontext.h"
+#include "securitycontextpriv.h"
 
 namespace SignOn {
 
@@ -34,6 +38,7 @@ Identity::Identity(const quint32 id, QObject *parent):
 
     qRegisterMetaType<Error>("SignOn::Error");
     qRegisterMetaType<Error>("Error");
+    qDBusRegisterMetaType<SecurityContext>();
 
     if (qMetaTypeId<Error>() < QMetaType::User)
         BLAME() << "Identity::Identity() - "

@@ -27,6 +27,7 @@
 
 #include "credentialsdb.h"
 #include "signonidentityinfo.cpp"
+#include "signonsecuritycontext.cpp"
 
 const QString dbFile = QLatin1String("/tmp/signon_test.db");
 const QString secretsDbFile = QLatin1String("/tmp/signon_test_secrets.db");

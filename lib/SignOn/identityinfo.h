@@ -28,10 +28,11 @@
 #ifndef IDENTITY_INFO_H
 #define IDENTITY_INFO_H
 
-#include <QStringList>
 #include <QMetaType>
+#include <QStringList>
 
 #include "libsignoncommon.h"
+#include "securitycontext.h"
 
 namespace SignOn {
 
@@ -46,6 +47,12 @@ typedef QString MethodName;
  * Defines a string list as a list of mechanisms.
  */
 typedef QStringList MechanismsList;
+
+/*!
+ * @typedef QList<SecurityContext> SecurityContextList
+ * Defines a list of security contexts.
+ */
+typedef QList<SecurityContext> SecurityContextList;
 
 /*!
  * @class IdentityInfo
@@ -214,13 +221,33 @@ public:
     QString owner() const;
 
     /*!
-     * Sets the list of access control application tokens, therefore
+     * Sets the list of access control system tokens, therefore
      * defining the applications that will be able to access this specific
      * set of credentials.
      *
-     * @param accessControlList List of access control tokens
+     * @param accessControlList List of access control system tokens
      */
     void setAccessControlList(const QStringList &accessControlList);
+
+    /*!
+     * Sets the list of access control tokens, therefore defining the
+     * applications that will be able to access this specific set of
+     * credentials.
+     *
+     * @param accessControlList List of access control tokens
+     */
+    void setAccessControlList(const SecurityContextList &accessControlList);
+
+    /*!
+     * Gets the list of access control system tokens defining the
+     * applications that are able to access this specific set of credentials.
+     *
+     * @attention This is accessible only to the owner application.
+     *
+     * @return The access control system tokens which defines the
+     * applications allowed to access this set of credentials.
+     */
+    QStringList accessControlList() const;
 
     /*!
      * Gets the list of access control application tokens defining the
@@ -231,7 +258,7 @@ public:
      * @return The access control tokens which defines the applications allowed
      * to access this set of credentials.
      */
-    QStringList accessControlList() const;
+    SecurityContextList accessControlListFull() const;
 
     /*!
      * Sets the method into identity info.

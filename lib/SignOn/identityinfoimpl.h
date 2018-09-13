@@ -96,12 +96,12 @@ public:
         return value(SIGNOND_IDENTITY_INFO_OWNER).toStringList();
     }
 
-    void setAccessControlList(const QStringList &accessControlList) {
-        insert(SIGNOND_IDENTITY_INFO_ACL, accessControlList);
+    void setAccessControlList(const SecurityContextList &accessControlList) {
+        insert(SIGNOND_IDENTITY_INFO_ACL, QVariant::fromValue(accessControlList));
     }
 
-    QStringList accessControlList() const {
-        return value(SIGNOND_IDENTITY_INFO_ACL).toStringList();
+    SecurityContextList accessControlList() const {
+        return value(SIGNOND_IDENTITY_INFO_ACL).value<SecurityContextList>();
     }
 
     void setSecret(const QString &secret) {

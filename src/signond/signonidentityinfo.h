@@ -27,12 +27,14 @@
 #include <QVariantMap>
 
 #include "signond/signoncommon.h"
+#include "signonsecuritycontext.h"
 
 namespace SignonDaemonNS {
 
 typedef QString MethodName;
 typedef QStringList MechanismsList;
 typedef QMap<MethodName, MechanismsList> MethodMap;
+typedef QList<SignonSecurityContext> SignonSecurityContextList;
 
 /*!
  * @struct SignonIdentityInfo
@@ -120,12 +122,28 @@ struct SignonIdentityInfo: protected QVariantMap
         return value(SIGNOND_IDENTITY_INFO_AUTHMETHODS).value<MethodMap>();
     }
 
+    void setAccessControlList(const SignonSecurityContextList &accessControlList) {
+        insert(SIGNOND_IDENTITY_INFO_ACL, QVariant::fromValue(accessControlList));
+    }
+
     void setAccessControlList(const QStringList &accessControlList) {
-        insert(SIGNOND_IDENTITY_INFO_ACL, accessControlList);
+        SignonSecurityContextList list;
+        for (const QString &sysCtx: accessControlList) {
+            SignonSecurityContext securityContext = SignonSecurityContext(sysCtx, QLatin1String("*"));
+            list.append(securityContext);
+        }
+
+        insert(SIGNOND_IDENTITY_INFO_ACL, QVariant::fromValue(list));
     }
 
     QStringList accessControlList() const {
-        return value(SIGNOND_IDENTITY_INFO_ACL).toStringList();
+        SignonSecurityContextList accessControlList = value(SIGNOND_IDENTITY_INFO_ACL).value<SignonSecurityContextList>();
+        QStringList list;
+        for (const SignonSecurityContext &securityContext: accessControlList) {
+            list.append(securityContext.systemContext());
+        }
+
+        return list;
     }
 
     void setValidated(bool validated) {
@@ -168,5 +186,6 @@ struct SignonIdentityInfo: protected QVariantMap
 } //namespace SignonDaemonNS
 
 Q_DECLARE_METATYPE(SignonDaemonNS::MethodMap)
+Q_DECLARE_METATYPE(SignonDaemonNS::SignonSecurityContextList)
 
 #endif // SIGNONIDENTITYINFO_H

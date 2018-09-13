@@ -49,6 +49,70 @@ char *toString(const QSet<QString> &set)
 
 using namespace QtDBusMock;
 
+struct SignondSecurityContextTest
+{
+public:
+    SignondSecurityContextTest(const QString &systemContext = QStringLiteral("*"), const QString &applicationContext = QStringLiteral("*")):
+        m_systemContext(systemContext),
+        m_applicationContext(applicationContext)
+    {
+    }
+
+    bool operator==(const SignondSecurityContextTest &sec) const
+    {
+        if (m_systemContext != sec.m_systemContext)
+            return false;
+
+        return m_applicationContext == sec.m_applicationContext;
+    }
+
+    bool operator<(const SignondSecurityContextTest &sec) const
+    {
+        if (m_systemContext != sec.m_systemContext)
+            return m_systemContext < sec.m_systemContext;
+
+        return m_applicationContext < sec.m_applicationContext;
+    }
+
+    QString m_systemContext;
+    QString m_applicationContext;
+};
+typedef QList<SignondSecurityContextTest> SignondSecurityContextTestList;
+
+QDebug operator<<(QDebug &dbg, const SignondSecurityContextTestList&securityContextList)
+{
+    dbg << "{ ";
+    for (const SignondSecurityContextTest &secCtx : securityContextList) {
+        dbg << " ( "
+            << secCtx.m_systemContext
+            << ", "
+            << secCtx.m_applicationContext
+            << " )";
+    }
+
+    dbg << " }";
+    return dbg;
+}
+
+QDBusArgument &operator<<(QDBusArgument &argument, const SignondSecurityContextTest &securityContext)
+{
+    argument.beginStructure();
+    argument << securityContext.m_systemContext << securityContext.m_applicationContext;
+    argument.endStructure();
+    return argument;
+}
+
+const QDBusArgument &operator>>(const QDBusArgument &argument, SignondSecurityContextTest &securityContext)
+{
+    argument.beginStructure();
+    argument >> securityContext.m_systemContext >> securityContext.m_applicationContext;
+    argument.endStructure();
+    return argument;
+}
+
+Q_DECLARE_METATYPE(SignondSecurityContextTest)
+Q_DECLARE_METATYPE(SignondSecurityContextTestList)
+
 class SignondTest: public QObject
 {
     Q_OBJECT
@@ -104,6 +168,20 @@ static bool mapIsSuperset(const QVariantMap &superSet, const QVariantMap &set)
             qDebug() << "Missing key" << it.key();
             return false;
         }
+
+        if (it.key() == SIGNOND_IDENTITY_INFO_ACL) {
+            QDBusArgument container = superSet.value(it.key()).value<QDBusArgument>();
+            SignondSecurityContextTestList accessControlList = qdbus_cast<SignondSecurityContextTestList>(container);
+            SignondSecurityContextTestList sub_acl = it.value().value<SignondSecurityContextTestList>();
+            if (accessControlList != sub_acl) {
+                
+                qDebug() << it.key() << "is" << accessControlList << " expecting " << sub_acl;
+                return false;
+            }
+
+            continue;
+        }
+
         if (superSet.value(it.key()) != it.value()) {
             qDebug() << it.key() << "is" << superSet.value(it.key()) << " expecting " << it.value();
             return false;
@@ -120,6 +198,9 @@ SignondTest::SignondTest():
     m_signonUi(&m_mock)
 {
     DBusMock::registerMetaTypes();
+    qDBusRegisterMetaType<SignondSecurityContextTest>();
+    qDBusRegisterMetaType<SignondSecurityContextTestList>();
+    QMetaType::registerComparators<SignondSecurityContextTest>();
 }
 
 void SignondTest::setupEnvironment()
@@ -287,10 +368,11 @@ void SignondTest::testIdentityCreation()
         reply.arguments()[0].value<QDBusObjectPath>().path();
     QVERIFY(objectPath.startsWith('/'));
 
+    SignondSecurityContextTestList acl = { SignondSecurityContextTest() };
     QVariantMap identityData {
         { SIGNOND_IDENTITY_INFO_USERNAME, "John" },
         { SIGNOND_IDENTITY_INFO_CAPTION, "John's account" },
-        { SIGNOND_IDENTITY_INFO_ACL, QStringList { "*" } },
+        { SIGNOND_IDENTITY_INFO_ACL, QVariant::fromValue(acl) },
     };
     msg = methodCall(objectPath, SIGNOND_IDENTITY_INTERFACE, "store");
     msg << identityData;
@@ -343,10 +425,11 @@ void SignondTest::testIdentityRemoval()
 {
     m_signonUi.mockedService().ClearCalls().waitForFinished();
 
+    SignondSecurityContextTestList acl = { SignondSecurityContextTest() };
     QVariantMap identityData {
         { SIGNOND_IDENTITY_INFO_USERNAME, "John Deleteme" },
         { SIGNOND_IDENTITY_INFO_CAPTION, "John's account" },
-        { SIGNOND_IDENTITY_INFO_ACL, QStringList { "*" } },
+        { SIGNOND_IDENTITY_INFO_ACL, QVariant::fromValue(acl) },
     };
     uint id;
     QString objectPath = createIdentity(identityData, &id);
@@ -382,10 +465,11 @@ void SignondTest::testIdentityRemoval()
 
 void SignondTest::testIdentityReferences()
 {
+    SignondSecurityContextTestList acl = { SignondSecurityContextTest() };
     QVariantMap identityData {
         { SIGNOND_IDENTITY_INFO_USERNAME, "John" },
         { SIGNOND_IDENTITY_INFO_CAPTION, "John's account" },
-        { SIGNOND_IDENTITY_INFO_ACL, QStringList { "*" } },
+        { SIGNOND_IDENTITY_INFO_ACL, QVariant::fromValue(acl) },
     };
     QString objectPath = createIdentity(identityData);
 

@@ -22,6 +22,7 @@
  */
 
 #include <QVariant>
+#include <QString>
 
 #include "debug.h"
 #include "libsignoncommon.h"
@@ -121,10 +122,31 @@ QString IdentityInfo::owner() const
 
 void IdentityInfo::setAccessControlList(const QStringList &accessControlList)
 {
-    impl->setAccessControlList(accessControlList);
+    SecurityContextList list;
+    for (const QString &sysCtx: accessControlList) {
+        list.append(SecurityContext(sysCtx, QLatin1String("*")));
+    }
+
+    impl->setAccessControlList(list);
 }
 
 QStringList IdentityInfo::accessControlList() const
+{
+    SecurityContextList accessControlList = impl->accessControlList();
+    QStringList list;
+    for (const SecurityContext &secCtx: accessControlList) {
+        list.append(secCtx.systemContext());
+    }
+
+    return list;
+}
+
+void IdentityInfo::setAccessControlList(const SecurityContextList &accessControlList)
+{
+    impl->setAccessControlList(accessControlList);
+}
+
+SecurityContextList IdentityInfo::accessControlListFull() const
 {
     return impl->accessControlList();
 }

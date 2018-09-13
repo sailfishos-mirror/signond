@@ -33,6 +33,7 @@ HEADERS += \
     signonidentityinfo.h \
     signonui_interface.h \
     signonidentityadaptor.h \
+    signonsecuritycontext.h \
     signonsessioncoretools.h
 SOURCES += \
     accesscontrolmanagerhelper.cpp \
@@ -53,6 +54,7 @@ SOURCES += \
     signondaemon.cpp \
     signonidentityinfo.cpp \
     signonidentityadaptor.cpp \
+    signonsecuritycontext.cpp \
     signonsessioncoretools.cpp
 INCLUDEPATH += . \
     $${TOP_SRC_DIR}/lib/plugins \

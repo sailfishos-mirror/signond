@@ -46,6 +46,9 @@ SignonIdentityInfo::SignonIdentityInfo(const QVariantMap &info)
             if (i.key() == SIGNOND_IDENTITY_INFO_AUTHMETHODS) {
                 MethodMap methodMap = qdbus_cast<MethodMap>(container);
                 setMethods(methodMap);
+            } else if (i.key() == SIGNOND_IDENTITY_INFO_ACL) {
+                SignonSecurityContextList accessControlList = qdbus_cast<SignonSecurityContextList>(container);
+                setAccessControlList(accessControlList);
             } else {
                 BLAME() << "Found unsupported QDBusArgument in key" << i.key();
             }

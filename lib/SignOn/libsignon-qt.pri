@@ -12,6 +12,7 @@ public_headers += \
     identity.h \
     authsession.h \
     libsignoncommon.h \
+    securitycontext.h \
     signon.h \
     signonerror.h
 
@@ -22,7 +23,8 @@ private_headers = authserviceimpl.h \
     dbusinterface.h \
     debug.h \
     identityimpl.h \
-    identityinfoimpl.h
+    identityinfoimpl.h \
+    securitycontextpriv.h
 
 HEADERS = $$public_headers \
     $$private_headers
@@ -42,7 +44,8 @@ SOURCES += identityinfo.cpp \
     debug.cpp \
     identity.cpp \
     identityimpl.cpp \
-    identityinfoimpl.cpp
+    identityinfoimpl.cpp \
+    securitycontext.cpp
 
 QT += core \
     dbus
@@ -63,6 +66,7 @@ headers.files = $$public_headers \
     Error \
     Identity \
     IdentityInfo \
+    SecurityContext \
     SessionData
 headers.path = $${INSTALL_PREFIX}/include/$${TARGET}/SignOn
 INSTALLS += headers
