@@ -154,12 +154,12 @@ struct SignonIdentityInfo: protected QVariantMap
         return value(SIGNOND_IDENTITY_INFO_VALIDATED).toBool();
     }
 
-    void setType(int type) {
+    void setType(quint32 type) {
         insert(SIGNOND_IDENTITY_INFO_TYPE, type);
     }
 
-    int type() const {
-        return value(SIGNOND_IDENTITY_INFO_TYPE).toInt();
+    quint32 type() const {
+        return value(SIGNOND_IDENTITY_INFO_TYPE).toUInt();
     }
 
     void setOwnerList(const QStringList &owners) {

@@ -125,12 +125,12 @@ public:
     void removeMethod(const MethodName &method);
 
     void setType(IdentityInfo::CredentialsType type) {
-        insert(SIGNOND_IDENTITY_INFO_TYPE, type);
+        insert(SIGNOND_IDENTITY_INFO_TYPE, quint32(type));
     }
 
     IdentityInfo::CredentialsType type() const {
-        int typeInt = value(SIGNOND_IDENTITY_INFO_TYPE).toInt();
-        return IdentityInfo::CredentialsType(typeInt);
+        quint32 typeUInt = value(SIGNOND_IDENTITY_INFO_TYPE).toUInt();
+        return IdentityInfo::CredentialsType(typeUInt);
     }
 
     qint32 refCount() const {
