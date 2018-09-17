@@ -16,7 +16,7 @@ Build-Depends: dbus-test-runner,
                qtbase5-dev,
                qtchooser,
 Standards-Version: 3.9.5
-Homepage: http://code.google.com/p/accounts-sso/
+Homepage: https://gitlab.com/accounts-sso/signond
 # if you don't have have commit access to this branch but would like to upload
 # directly to Ubuntu, don't worry: your changes will be merged back into the
 # upstream branch
