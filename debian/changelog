@@ -1,3 +1,9 @@
+signon (8.60) bionic; urgency=medium
+
+  * New upstream release
+
+ -- Corentin Noël <corentin@elementary.io>  Tue, 18 Jun 2018 08:17:13 +0200
+
 signon (8.59+17.10.20170606-0ubuntu1) artful; urgency=medium
 
   * Recommend signon-ui-x11 instead of transitional signon-ui
