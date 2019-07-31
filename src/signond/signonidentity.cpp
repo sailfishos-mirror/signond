@@ -84,7 +84,8 @@ private:
 SignonIdentity::SignonIdentity(quint32 id, int timeout,
                                SignonDaemon *parent):
     SignonDisposable(timeout, parent),
-    m_pInfo(NULL)
+    m_pInfo(NULL),
+    m_destroyed(false)
 {
     m_id = id;
 
@@ -112,7 +113,10 @@ SignonIdentity::SignonIdentity(quint32 id, int timeout,
 
 SignonIdentity::~SignonIdentity()
 {
-    emit unregistered();
+    if (!m_destroyed) {
+        m_destroyed = true;
+        Q_EMIT unregistered();
+    }
 
     delete m_signonui;
     delete m_pInfo;
@@ -125,9 +129,8 @@ SignonIdentity *SignonIdentity::createIdentity(quint32 id, SignonDaemon *parent)
 
 void SignonIdentity::destroy()
 {
-    /* Emitting the destroyed signal makes QDBusConnection unregister the
-     * object */
-    Q_EMIT destroyed();
+    m_destroyed = true;
+    Q_EMIT unregistered();
     deleteLater();
 }
 

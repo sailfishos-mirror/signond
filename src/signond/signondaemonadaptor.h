@@ -34,6 +34,7 @@
 namespace SignonDaemonNS {
 
 typedef QList<QVariantMap> MapList;
+class RegisteredIdentity;
 
 class SignonDaemonAdaptor: public QDBusAbstractAdaptor
 {
@@ -74,10 +75,12 @@ private:
                                    QObject *object);
 
 private Q_SLOTS:
+    void onIdentityUnregistered();
     void onIdentityAccessReplyFinished();
     void onAuthSessionAccessReplyFinished();
 
 private:
+    QList<RegisteredIdentity*> m_registeredIdentities;
     SignonDaemon *m_parent;
 }; //class SignonDaemonAdaptor
 
