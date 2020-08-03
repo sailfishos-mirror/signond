@@ -1,4 +1,4 @@
-image: ubuntu:bionic
+image: ubuntu:focal
 
 cache:
   key: apt-cache
@@ -6,8 +6,9 @@ cache:
   - apt-cache/
 
 before_script:
+  - export DEBIAN_FRONTEND=noninteractive
   - export APT_CACHE_DIR=`pwd`/apt-cache && mkdir -pv $APT_CACHE_DIR
-  - apt-get update -yq && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y qt5-qmake qtbase5-dev qtchooser pkg-config libqt5sql5-sqlite doxygen libdbus-1-dev
+  - apt-get update -yq && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y qt5-qmake qtbase5-dev qtchooser pkg-config libqt5sql5-sqlite doxygen libdbus-1-dev g++ make
   - apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y dbus-test-runner libqtdbusmock1-dev libqtdbustest1-dev
   - apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y lcov gcovr
 
