@@ -505,7 +505,7 @@ void SignonSessionCore::processStoreOperation(const StoreOperation &operation)
 
     if (operation.m_storeType != StoreOperation::Blob) {
         if (!(db->updateCredentials(operation.m_info))) {
-            BLAME() << "Error occured while updating credentials.";
+            BLAME() << "Error occurred while updating credentials.";
         }
     } else {
         TRACE() << "Processing --- StoreOperation::Blob";
@@ -513,7 +513,7 @@ void SignonSessionCore::processStoreOperation(const StoreOperation &operation)
         if (!db->storeData(m_id,
                            operation.m_authMethod,
                            operation.m_blobData)) {
-            BLAME() << "Error occured while storing data.";
+            BLAME() << "Error occurred while storing data.";
         }
     }
 }
