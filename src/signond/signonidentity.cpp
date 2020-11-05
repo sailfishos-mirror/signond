@@ -34,7 +34,6 @@
 #include "signoncommon.h"
 
 #include "accesscontrolmanagerhelper.h"
-#include "signonidentityadaptor.h"
 
 #define SIGNON_RETURN_IF_CAM_UNAVAILABLE(_ret_arg_) do {                          \
         if (!(CredentialsAccessManager::instance()->credentialsSystemOpened())) { \
@@ -88,8 +87,6 @@ SignonIdentity::SignonIdentity(quint32 id, int timeout,
     m_destroyed(false)
 {
     m_id = id;
-
-    (void)new SignonIdentityAdaptor(this);
 
     /*
      * creation of unique name for the given identity

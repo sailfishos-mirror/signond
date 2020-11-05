@@ -24,7 +24,10 @@
  */
 
 #include "signondaemonadaptor.h"
+
+#include "signonauthsessionadaptor.h"
 #include "signondisposable.h"
+#include "signonidentityadaptor.h"
 #include "accesscontrolmanagerhelper.h"
 
 namespace SignonDaemonNS {
@@ -48,12 +51,32 @@ SignonDaemonAdaptor::~SignonDaemonAdaptor()
     qDeleteAll(m_registeredIdentities);
 }
 
+template <class T>
+QDBusObjectPath
+SignonDaemonAdaptor::registerObject(const QDBusConnection &connection,
+                                    T *object)
+{
+    QString path = object->objectName();
+
+    if (connection.objectRegisteredAt(path) != object) {
+        QDBusConnection conn(connection);
+        (void) new typename T::Adaptor(object);
+        if (!conn.registerObject(path, object,
+                                 QDBusConnection::ExportAdaptors)) {
+            BLAME() << "Object registration failed:" << object <<
+                conn.lastError();
+        }
+    }
+    return QDBusObjectPath(path);
+}
+
 void SignonDaemonAdaptor::registerNewIdentity(const QString &applicationContext,
                                               QDBusObjectPath &objectPath)
 {
     Q_UNUSED(applicationContext);
 
-    QObject *identity = m_parent->registerNewIdentity();
+    SignonIdentity *identity = m_parent->registerNewIdentity();
+
     QDBusConnection dbusConnection(parentDBusContext().connection());
     objectPath = registerObject(dbusConnection, identity);
     m_registeredIdentities.append(new RegisteredIdentity(dbusConnection, identity));
@@ -97,23 +120,6 @@ bool SignonDaemonAdaptor::handleLastError(const QDBusConnection &conn,
     return true;
 }
 
-QDBusObjectPath
-SignonDaemonAdaptor::registerObject(const QDBusConnection &connection,
-                                    QObject *object)
-{
-    QString path = object->objectName();
-
-    if (connection.objectRegisteredAt(path) != object) {
-        QDBusConnection conn(connection);
-        if (!conn.registerObject(path, object,
-                                 QDBusConnection::ExportAdaptors)) {
-            BLAME() << "Object registration failed:" << object <<
-                conn.lastError();
-        }
-    }
-    return QDBusObjectPath(path);
-}
-
 void SignonDaemonAdaptor::getIdentity(const quint32 id,
                                       const QString &applicationContext,
                                       QDBusObjectPath &objectPath,
@@ -133,7 +139,7 @@ void SignonDaemonAdaptor::getIdentity(const quint32 id,
         return;
     }
 
-    QObject *identity = m_parent->getIdentity(id, identityData);
+    SignonIdentity *identity = m_parent->getIdentity(id, identityData);
     if (handleLastError(conn, msg)) return;
 
     objectPath = registerObject(conn, identity);
@@ -175,7 +181,7 @@ void SignonDaemonAdaptor::onIdentityAccessReplyFinished()
     }
 
     QVariantMap identityData;
-    QObject *identity = m_parent->getIdentity(id, identityData);
+    SignonIdentity *identity = m_parent->getIdentity(id, identityData);
     if (handleLastError(connection, message)) return;
 
     QDBusObjectPath objectPath = registerObject(connection, identity);
@@ -222,7 +228,7 @@ QDBusObjectPath SignonDaemonAdaptor::getAuthSessionObjectPath(const quint32 id,
 
     TRACE() << "ACM passed, creating AuthSession object";
     pid_t ownerPid = acm->pidOfPeer(conn, msg);
-    QObject *authSession = m_parent->getAuthSession(id, type, ownerPid);
+    SignonAuthSession *authSession = m_parent->getAuthSession(id, type, ownerPid);
     if (handleLastError(conn, msg)) return QDBusObjectPath();
 
     return registerObject(conn, authSession);
@@ -248,7 +254,8 @@ void SignonDaemonAdaptor::onAuthSessionAccessReplyFinished()
     }
 
     pid_t ownerPid = acm->pidOfPeer(connection, message);
-    QObject *authSession = m_parent->getAuthSession(id, type, ownerPid);
+    SignonAuthSession *authSession =
+        m_parent->getAuthSession(id, type, ownerPid);
     if (handleLastError(connection, message)) return;
     QDBusObjectPath objectPath = registerObject(connection, authSession);
 

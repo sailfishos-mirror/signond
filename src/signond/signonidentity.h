@@ -39,6 +39,7 @@
 
 namespace SignonDaemonNS {
 
+class SignonIdentityAdaptor;
 class PendingCallWatcherWithContext;
 
 /*!
@@ -56,6 +57,8 @@ class SignonIdentity: public SignonDisposable, protected QDBusContext
     virtual ~SignonIdentity();
 
 public:
+    typedef SignonIdentityAdaptor Adaptor;
+
     void destroy();
     static SignonIdentity *createIdentity(quint32 id, SignonDaemon *parent);
     quint32 id() const { return m_id; }

@@ -23,7 +23,6 @@
 
 #include "signond-common.h"
 #include "signonauthsession.h"
-#include "signonauthsessionadaptor.h"
 
 using namespace SignonDaemonNS;
 
@@ -33,8 +32,6 @@ SignonAuthSession::SignonAuthSession(SignonSessionCore *core,
     m_ownerPid(ownerPid)
 {
     TRACE();
-
-    (void)new SignonAuthSessionAdaptor(this);
 
     static quint32 incr = 0;
     QString objectName = SIGNOND_DAEMON_OBJECTPATH +

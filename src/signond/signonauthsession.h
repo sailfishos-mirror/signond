@@ -37,6 +37,8 @@ using namespace SignOn;
 
 namespace SignonDaemonNS {
 
+class SignonAuthSessionAdaptor;
+
 /*!
  * @class SignonAuthSession
  * Daemon side representation of authentication session.
@@ -53,6 +55,7 @@ public:
     }
 
     friend class SignonAuthSessionAdaptor;
+    typedef SignonAuthSessionAdaptor Adaptor;
 
     static SignonAuthSession *createAuthSession(const quint32 id,
                                                 const QString &method,
