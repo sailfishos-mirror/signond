@@ -20,6 +20,7 @@ HEADERS += \
     default-crypto-manager.h \
     default-key-authorizer.h \
     default-secrets-storage.h \
+    error.h \
     signonsessioncore.h \
     signonauthsessionadaptor.h \
     signonauthsession.h \
