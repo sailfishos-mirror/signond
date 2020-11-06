@@ -23,6 +23,7 @@
  * 02110-1301 USA
  */
 
+#include "erroradaptor.h"
 #include "signond-common.h"
 #include "signonauthsession.h"
 #include "signonidentityinfo.h"
@@ -389,111 +390,72 @@ void SignonSessionCore::replyError(const QDBusConnection &conn,
 {
     keepInUse();
 
-    QString errName;
     QString errMessage;
 
+    using LibErrorCode = SignOn::Error;
+
+    Error::Code code = Error::NoError;
+
     //TODO this is needed for old error codes
-    if( err < Error::AuthSessionErr) {
+    if (err < LibErrorCode::AuthSessionErr) {
         BLAME() << "Deprecated error code:" << err;
-            if (message.isEmpty())
-                errMessage = SIGNOND_UNKNOWN_ERR_STR;
-            else
-                errMessage = message;
-            errName = SIGNOND_UNKNOWN_ERR_NAME;
+        code = Error::UnknownError;
+        errMessage = message;
     }
 
-    if (Error::AuthSessionErr < err && err < Error::UserErr) {
+    if (LibErrorCode::AuthSessionErr < err && err < LibErrorCode::UserErr) {
         switch(err) {
-        case Error::MechanismNotAvailable:
-            errName = SIGNOND_MECHANISM_NOT_AVAILABLE_ERR_NAME;
-            errMessage = SIGNOND_MECHANISM_NOT_AVAILABLE_ERR_STR;
-            break;
-        case Error::MissingData:
-            errName = SIGNOND_MISSING_DATA_ERR_NAME;
-            errMessage = SIGNOND_MISSING_DATA_ERR_STR;
-            break;
-        case Error::InvalidCredentials:
-            errName = SIGNOND_INVALID_CREDENTIALS_ERR_NAME;
-            errMessage = SIGNOND_INVALID_CREDENTIALS_ERR_STR;
-            break;
-        case Error::NotAuthorized:
-            errName = SIGNOND_NOT_AUTHORIZED_ERR_NAME;
-            errMessage = SIGNOND_NOT_AUTHORIZED_ERR_STR;
-            break;
-        case Error::WrongState:
-            errName = SIGNOND_WRONG_STATE_ERR_NAME;
-            errMessage = SIGNOND_WRONG_STATE_ERR_STR;
-            break;
-        case Error::OperationNotSupported:
-            errName = SIGNOND_OPERATION_NOT_SUPPORTED_ERR_NAME;
-            errMessage = SIGNOND_OPERATION_NOT_SUPPORTED_ERR_STR;
-            break;
-        case Error::NoConnection:
-            errName = SIGNOND_NO_CONNECTION_ERR_NAME;
-            errMessage = SIGNOND_NO_CONNECTION_ERR_STR;
-            break;
-        case Error::Network:
-            errName = SIGNOND_NETWORK_ERR_NAME;
-            errMessage = SIGNOND_NETWORK_ERR_STR;
-            break;
-        case Error::Ssl:
-            errName = SIGNOND_SSL_ERR_NAME;
-            errMessage = SIGNOND_SSL_ERR_STR;
-            break;
-        case Error::Runtime:
-            errName = SIGNOND_RUNTIME_ERR_NAME;
-            errMessage = SIGNOND_RUNTIME_ERR_STR;
-            break;
-        case Error::SessionCanceled:
-            errName = SIGNOND_SESSION_CANCELED_ERR_NAME;
-            errMessage = SIGNOND_SESSION_CANCELED_ERR_STR;
-            break;
-        case Error::TimedOut:
-            errName = SIGNOND_TIMED_OUT_ERR_NAME;
-            errMessage = SIGNOND_TIMED_OUT_ERR_STR;
-            break;
-        case Error::UserInteraction:
-            errName = SIGNOND_USER_INTERACTION_ERR_NAME;
-            errMessage = SIGNOND_USER_INTERACTION_ERR_STR;
-            break;
-        case Error::OperationFailed:
-            errName = SIGNOND_OPERATION_FAILED_ERR_NAME;
-            errMessage = SIGNOND_OPERATION_FAILED_ERR_STR;
-            break;
-        case Error::EncryptionFailure:
-            errName = SIGNOND_ENCRYPTION_FAILED_ERR_NAME;
-            errMessage = SIGNOND_ENCRYPTION_FAILED_ERR_STR;
-            break;
-        case Error::TOSNotAccepted:
-            errName = SIGNOND_TOS_NOT_ACCEPTED_ERR_NAME;
-            errMessage = SIGNOND_TOS_NOT_ACCEPTED_ERR_STR;
-            break;
-        case Error::ForgotPassword:
-            errName = SIGNOND_FORGOT_PASSWORD_ERR_NAME;
-            errMessage = SIGNOND_FORGOT_PASSWORD_ERR_STR;
-            break;
-        case Error::IncorrectDate:
-            errName = SIGNOND_INCORRECT_DATE_ERR_NAME;
-            errMessage = SIGNOND_INCORRECT_DATE_ERR_STR;
-            break;
+        case LibErrorCode::MechanismNotAvailable:
+            code = Error::MechanismNotAvailable; break;
+        case LibErrorCode::MissingData:
+            code = Error::MissingData; break;
+        case LibErrorCode::InvalidCredentials:
+            code = Error::InvalidCredentials; break;
+        case LibErrorCode::NotAuthorized:
+            code = Error::NotAuthorized; break;
+        case LibErrorCode::WrongState:
+            code = Error::WrongState; break;
+        case LibErrorCode::OperationNotSupported:
+            code = Error::OperationNotSupported; break;
+        case LibErrorCode::NoConnection:
+            code = Error::NoConnection; break;
+        case LibErrorCode::Network:
+            code = Error::NetworkError; break;
+        case LibErrorCode::Ssl:
+            code = Error::SslError; break;
+        case LibErrorCode::Runtime:
+            code = Error::RuntimeError; break;
+        case LibErrorCode::SessionCanceled:
+            code = Error::SessionCanceled; break;
+        case LibErrorCode::TimedOut:
+            code = Error::TimedOut; break;
+        case LibErrorCode::UserInteraction:
+            code = Error::UserInteraction; break;
+        case LibErrorCode::OperationFailed:
+            code = Error::OperationFailed; break;
+        case LibErrorCode::EncryptionFailure:
+            code = Error::EncryptionFailed; break;
+        case LibErrorCode::TOSNotAccepted:
+            code = Error::TOSNotAccepted; break;
+        case LibErrorCode::ForgotPassword:
+            code = Error::ForgotPassword; break;
+        case LibErrorCode::IncorrectDate:
+            code = Error::IncorrectDate; break;
         default:
-            if (message.isEmpty())
-                errMessage = SIGNOND_UNKNOWN_ERR_STR;
-            else
-                errMessage = message;
-            errName = SIGNOND_UNKNOWN_ERR_NAME;
-            break;
+            code = Error::UnknownError; break;
         };
+        errMessage = message;
     }
 
-    if (err > Error::UserErr) {
-        errName = SIGNOND_USER_ERROR_ERR_NAME;
+    if (err > LibErrorCode::UserErr) {
+        code = Error::UserDefinedError;
         errMessage = (QString::fromLatin1("%1:%2")).arg(err).arg(message);
     }
 
+    Error error(code, errMessage);
+
     QDBusMessage errReply;
-    errReply = msg.createErrorReply(errName,
-                                    (message.isEmpty() ? errMessage : message));
+    errReply = ErrorAdaptor(error).createReply(msg);
     conn.send(errReply);
 }
 
