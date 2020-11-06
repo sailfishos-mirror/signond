@@ -69,13 +69,13 @@ public:
 public Q_SLOTS:
     quint32 requestCredentialsUpdate(const QString &message);
     QVariantMap getInfo();
-    bool addReference(const QString &reference);
-    bool removeReference(const QString &reference);
+    bool addReference(const QString &reference, const QString &appId);
+    bool removeReference(const QString &reference, const QString &appId);
     bool verifyUser(const QVariantMap &params);
     bool verifySecret(const QString &secret);
     void remove();
     bool signOut();
-    quint32 store(const QVariantMap &info);
+    quint32 store(const QVariantMap &info, const QString &appId);
     void queryUiSlot(QDBusPendingCallWatcher *call);
     void verifyUiSlot(QDBusPendingCallWatcher *call);
 Q_SIGNALS:

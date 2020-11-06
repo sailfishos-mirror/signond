@@ -168,7 +168,7 @@ SignonIdentityInfo SignonIdentity::queryInfo(bool &ok, bool queryPassword)
     return info;
 }
 
-bool SignonIdentity::addReference(const QString &reference)
+bool SignonIdentity::addReference(const QString &reference, const QString &appId)
 {
     TRACE() << "addReference: " << reference;
 
@@ -179,16 +179,11 @@ bool SignonIdentity::addReference(const QString &reference)
         BLAME() << "NULL database handler object.";
         return false;
     }
-    const QDBusContext &context = static_cast<QDBusContext>(*this);
-    QString appId =
-        AccessControlManagerHelper::instance()->appIdOfPeer(
-                                                   context.connection(),
-                                                   context.message());
     keepInUse();
     return db->addReference(m_id, appId, reference);
 }
 
-bool SignonIdentity::removeReference(const QString &reference)
+bool SignonIdentity::removeReference(const QString &reference, const QString &appId)
 {
     TRACE() << "removeReference: " << reference;
 
@@ -199,11 +194,6 @@ bool SignonIdentity::removeReference(const QString &reference)
         BLAME() << "NULL database handler object.";
         return false;
     }
-    const QDBusContext &context = static_cast<QDBusContext>(*this);
-    QString appId =
-        AccessControlManagerHelper::instance()->appIdOfPeer(
-                                                   context.connection(),
-                                                   context.message());
     keepInUse();
     return db->removeReference(m_id, appId, reference);
 }
@@ -455,16 +445,10 @@ void SignonIdentity::onCredentialsUpdated(quint32 id)
     emit infoUpdated((int)SignOn::IdentityDataUpdated);
 }
 
-quint32 SignonIdentity::store(const QVariantMap &info)
+quint32 SignonIdentity::store(const QVariantMap &info, const QString &appId)
 {
     keepInUse();
     SIGNON_RETURN_IF_CAM_UNAVAILABLE(SIGNOND_NEW_IDENTITY);
-
-    const QDBusContext &context = static_cast<QDBusContext>(*this);
-    QString appId =
-        AccessControlManagerHelper::instance()->appIdOfPeer(
-                                                   context.connection(),
-                                                   context.message());
 
     const QVariant container = info.value(SIGNOND_IDENTITY_INFO_AUTHMETHODS);
     MethodMap methods = container.isValid() ?

@@ -91,16 +91,22 @@ QVariantMap SignonIdentityAdaptor::getInfo()
 
 void SignonIdentityAdaptor::addReference(const QString &reference)
 {
+    const QDBusConnection &connection = parentDBusContext().connection();
+    const QDBusMessage &message = parentDBusContext().message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return;
     }
 
-    if (!m_parent->addReference(reference)) {
+    QString appId =
+        AccessControlManagerHelper::instance()->appIdOfPeer(connection,
+                                                            message);
+    if (!m_parent->addReference(reference, appId)) {
         /* TODO: add a lastError() method to SignonIdentity */
         errorReply(SIGNOND_OPERATION_FAILED_ERR_NAME,
                    SIGNOND_OPERATION_FAILED_ERR_STR);
@@ -109,16 +115,22 @@ void SignonIdentityAdaptor::addReference(const QString &reference)
 
 void SignonIdentityAdaptor::removeReference(const QString &reference)
 {
+    const QDBusConnection &connection = parentDBusContext().connection();
+    const QDBusMessage &message = parentDBusContext().message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return;
     }
 
-    if (!m_parent->removeReference(reference)) {
+    QString appId =
+        AccessControlManagerHelper::instance()->appIdOfPeer(connection,
+                                                            message);
+    if (!m_parent->removeReference(reference, appId)) {
         /* TODO: add a lastError() method to SignonIdentity */
         errorReply(SIGNOND_OPERATION_FAILED_ERR_NAME,
                    SIGNOND_OPERATION_FAILED_ERR_STR);
@@ -193,28 +205,35 @@ bool SignonIdentityAdaptor::signOut()
 
 quint32 SignonIdentityAdaptor::store(const QVariantMap &info)
 {
+    const QDBusConnection &connection = parentDBusContext().connection();
+    const QDBusMessage &message = parentDBusContext().message();
+
     quint32 id = info.value(QLatin1String("Id"), SIGNOND_NEW_IDENTITY).toInt();
     /* Access Control */
     if (id != SIGNOND_NEW_IDENTITY) {
     AccessControlManagerHelper::IdentityOwnership ownership =
             AccessControlManagerHelper::instance()->isPeerOwnerOfIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id());
 
         if (ownership != AccessControlManagerHelper::IdentityDoesNotHaveOwner) {
             //Identity has an owner
             if (ownership == AccessControlManagerHelper::ApplicationIsNotOwner &&
                 !AccessControlManagerHelper::instance()->isPeerKeychainWidget(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message())) {
+                                    connection,
+                                    message)) {
 
                 securityErrorReply(__func__);
                 return 0;
             }
         }
     }
-    return m_parent->store(info);
+
+    QString appId =
+        AccessControlManagerHelper::instance()->appIdOfPeer(connection,
+                                                            message);
+    return m_parent->store(info, appId);
 }
 
 } //namespace SignonDaemonNS
