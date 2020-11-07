@@ -94,16 +94,16 @@ SignonAuthSession::queryAvailableMechanisms(const QStringList &wantedMechanisms)
     return parent()->queryAvailableMechanisms(wantedMechanisms);
 }
 
-QVariantMap SignonAuthSession::process(const QVariantMap &sessionDataVa,
-                                       const QString &mechanism)
+void SignonAuthSession::process(const QVariantMap &sessionDataVa,
+                                const QString &mechanism,
+                                const PeerContext &peerContext,
+                                const ProcessCb &callback)
 {
-    setDelayedReply(true);
-    parent()->process(connection(),
-                      message(),
+    parent()->process(peerContext,
                       sessionDataVa,
                       mechanism,
-                      objectName());
-    return QVariantMap();
+                      objectName(),
+                      callback);
 }
 
 void SignonAuthSession::cancel()

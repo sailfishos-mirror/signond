@@ -25,7 +25,6 @@
 #define SIGNONAUTHSESSION_H_
 
 #include <QtCore>
-#include <QtDBus>
 
 /*
  * TODO: remove invocation of plugin operations into the main signond process
@@ -33,10 +32,14 @@
 #include "signond-common.h"
 #include "signonsessioncore.h"
 
+#include <functional>
+
 using namespace SignOn;
 
 namespace SignonDaemonNS {
 
+class Error;
+class PeerContext;
 class SignonAuthSessionAdaptor;
 
 /*!
@@ -66,10 +69,15 @@ public:
     QString method() const;
     pid_t ownerPid() const;
 
+    typedef std::function<void(const QVariantMap &map, const Error &error)>
+        ProcessCb;
+
 public Q_SLOTS:
     QStringList queryAvailableMechanisms(const QStringList &wantedMechanisms);
-    QVariantMap process(const QVariantMap &sessionDataVa,
-                        const QString &mechanism);
+    void process(const QVariantMap &sessionDataVa,
+                 const QString &mechanism,
+                 const PeerContext &peerContext,
+                 const ProcessCb &callback);
     void cancel();
     void setId(quint32 id);
     void objectUnref();

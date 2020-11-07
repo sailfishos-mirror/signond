@@ -27,6 +27,7 @@
 #include "accesscontrolmanagerhelper.h"
 #include "credentialsaccessmanager.h"
 #include "credentialsdb.h"
+#include "erroradaptor.h"
 
 namespace SignonDaemonNS {
 
@@ -104,6 +105,9 @@ QVariantMap SignonAuthSessionAdaptor::process(const QVariantMap &sessionDataVa,
     }
 
     QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
+    QDBusConnection connection = dbusContext.connection();
+    const QDBusMessage &message = dbusContext.message();
+
     if (AccessControlManagerHelper::pidOfPeer(dbusContext) !=
         parent()->ownerPid()) {
         TRACE() << "process called from peer that doesn't own the AuthSession "
@@ -116,7 +120,20 @@ QVariantMap SignonAuthSessionAdaptor::process(const QVariantMap &sessionDataVa,
         return QVariantMap();
     }
 
-    return parent()->process(sessionDataVa, allowedMechanism);
+    auto callback = [this, connection, message](const QVariantMap &map,
+                                                const Error &error) {
+        if (!error) {
+            QDBusMessage dbusreply = message.createReply();
+            dbusreply << map;
+            connection.send(dbusreply);
+        } else {
+            connection.send(ErrorAdaptor(error).createReply(message));
+        }
+    };
+    parent()->process(sessionDataVa, allowedMechanism,
+                      PeerContext(connection, message), callback);
+    dbusContext.setDelayedReply(true);
+    return QVariantMap(); // ignored
 }
 
 void SignonAuthSessionAdaptor::cancel()

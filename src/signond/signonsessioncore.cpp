@@ -221,18 +221,18 @@ SignonSessionCore::queryAvailableMechanisms(const QStringList &wantedMechanisms)
         intersect(wantedMechanisms.toSet()).toList();
 }
 
-void SignonSessionCore::process(const QDBusConnection &connection,
-                                const QDBusMessage &message,
+void SignonSessionCore::process(const PeerContext &peerContext,
                                 const QVariantMap &sessionDataVa,
                                 const QString &mechanism,
-                                const QString &cancelKey)
+                                const QString &cancelKey,
+                                const ProcessCb &callback)
 {
     keepInUse();
-    m_listOfRequests.enqueue(RequestData(connection,
-                                         message,
+    m_listOfRequests.enqueue(RequestData(peerContext,
                                          sessionDataVa,
                                          mechanism,
-                                         cancelKey));
+                                         cancelKey,
+                                         callback));
 
     if (CredentialsAccessManager::instance()->isCredentialsSystemReady())
         QMetaObject::invokeMethod(this, "startNewRequest", Qt::QueuedConnection);
@@ -276,11 +276,7 @@ void SignonSessionCore::cancel(const QString &cancelKey)
         RequestData rd(isActive ?
                        m_listOfRequests.head() :
                        m_listOfRequests.takeAt(requestIndex));
-
-        QDBusMessage errReply =
-            rd.m_msg.createErrorReply(SIGNOND_SESSION_CANCELED_ERR_NAME,
-                                      SIGNOND_SESSION_CANCELED_ERR_STR);
-        rd.m_conn.send(errReply);
+        rd.m_callback(QVariantMap(), Error::SessionCanceled);
         TRACE() << "Size of the queue is" << m_listOfRequests.size();
     }
 }
@@ -345,8 +341,7 @@ void SignonSessionCore::startProcess()
 
             foreach(QString acl, identityAclList) {
                 if (AccessControlManagerHelper::instance()->
-                    isPeerAllowedToAccess(PeerContext(data.m_conn, data.m_msg),
-                                          acl))
+                    isPeerAllowedToAccess(data.m_peerContext, acl))
                     paramsTokenList.append(acl);
             }
 
@@ -375,18 +370,14 @@ void SignonSessionCore::startProcess()
     m_tmpPassword = parameters[SSO_KEY_PASSWORD].toString();
 
     if (!m_plugin->process(parameters, data.m_mechanism)) {
-        QDBusMessage errReply =
-            data.m_msg.createErrorReply(SIGNOND_RUNTIME_ERR_NAME,
-                                        SIGNOND_RUNTIME_ERR_STR);
-        data.m_conn.send(errReply);
+        data.m_callback(QVariantMap(), Error::RuntimeError);
         requestDone();
     } else
         stateChangedSlot(SignOn::SessionStarted,
                          QLatin1String("The request is started successfully"));
 }
 
-void SignonSessionCore::replyError(const QDBusConnection &conn,
-                                   const QDBusMessage &msg,
+void SignonSessionCore::replyError(const RequestData &request,
                                    int err, const QString &message)
 {
     keepInUse();
@@ -454,10 +445,7 @@ void SignonSessionCore::replyError(const QDBusConnection &conn,
     }
 
     Error error(code, errMessage);
-
-    QDBusMessage errReply;
-    errReply = ErrorAdaptor(error).createReply(msg);
-    conn.send(errReply);
+    request.m_callback(QVariantMap(), error);
 }
 
 void SignonSessionCore::processStoreOperation(const StoreOperation &operation)
@@ -500,7 +488,6 @@ void SignonSessionCore::processResultReply(const QVariantMap &data)
     RequestData rd = m_listOfRequests.head();
 
     if (!m_canceled) {
-        QVariantList arguments;
         QVariantMap filteredData = filterVariantMap(data);
 
         CredentialsAccessManager *camManager =
@@ -559,8 +546,7 @@ void SignonSessionCore::processResultReply(const QVariantMap &data)
             && filteredData.contains(SSO_KEY_PASSWORD))
             filteredData.remove(SSO_KEY_PASSWORD);
 
-        arguments << filteredData;
-        rd.m_conn.send(rd.m_msg.createReply(arguments));
+        rd.m_callback(filteredData, Error::NoError);
 
         if (m_watcher && !m_watcher->isFinished()) {
             delete m_watcher;
@@ -661,9 +647,9 @@ void SignonSessionCore::processUiRequest(const QVariantMap &data)
         AccessControlManagerHelper *acm =
             AccessControlManagerHelper::instance();
         request.m_params[SSOUI_KEY_PID] =
-            acm->pidOfPeer(PeerContext(request.m_conn, request.m_msg));
+            acm->pidOfPeer(request.m_peerContext);
         request.m_params[SSOUI_KEY_APP_ID] =
-            acm->appIdOfPeer(PeerContext(request.m_conn, request.m_msg));
+            acm->appIdOfPeer(request.m_peerContext);
 
         CredentialsAccessManager *camManager =
             CredentialsAccessManager::instance();
@@ -743,7 +729,7 @@ void SignonSessionCore::processError(int err, const QString &message)
     RequestData rd = m_listOfRequests.head();
 
     if (!m_canceled) {
-        replyError(rd.m_conn, rd.m_msg, err, message);
+        replyError(rd, err, message);
 
         if (m_watcher && !m_watcher->isFinished()) {
             delete m_watcher;
