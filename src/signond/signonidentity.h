@@ -29,6 +29,7 @@
 
 #include "pluginproxy.h"
 
+#include "error.h"
 #include "signond-common.h"
 #include "signondaemon.h"
 #include "signondisposable.h"
@@ -37,10 +38,11 @@
 
 #include "signonui_interface.h"
 
+#include <functional>
+
 namespace SignonDaemonNS {
 
 class SignonIdentityAdaptor;
-class PendingCallWatcherWithContext;
 
 /*!
  * @class SignonIdentity
@@ -51,7 +53,6 @@ class SignonIdentity: public SignonDisposable, protected QDBusContext
 {
     Q_OBJECT
 
-    friend class PendingCallWatcherWithContext;
     friend class SignonIdentityAdaptor;
 
     virtual ~SignonIdentity();
@@ -66,18 +67,29 @@ public:
     SignonIdentityInfo queryInfo(bool &ok, bool queryPassword = true);
     quint32 storeCredentials(const SignonIdentityInfo &info);
 
+    typedef std::function<void(bool verified, const Error &error)> VerifyUserCb;
+    typedef std::function<void(quint32 id, const Error &error)> CredentialsUpdateCb;
+    typedef std::function<void(const Error &error)> RemoveCb;
+    typedef std::function<void(bool signedOut, const Error &error)> SignOutCb;
+
 public Q_SLOTS:
-    quint32 requestCredentialsUpdate(const QString &message);
-    QVariantMap getInfo();
-    bool addReference(const QString &reference, const QString &appId);
-    bool removeReference(const QString &reference, const QString &appId);
-    bool verifyUser(const QVariantMap &params);
-    bool verifySecret(const QString &secret);
-    void remove();
-    bool signOut();
-    quint32 store(const QVariantMap &info, const QString &appId);
-    void queryUiSlot(QDBusPendingCallWatcher *call);
-    void verifyUiSlot(QDBusPendingCallWatcher *call);
+    void requestCredentialsUpdate(const QString &message,
+                                  const CredentialsUpdateCb &callback);
+    Error getInfo(SignonIdentityInfo *info);
+    Error addReference(const QString &reference, const QString &appId);
+    Error removeReference(const QString &reference, const QString &appId);
+
+    void verifyUser(const QVariantMap &params, const VerifyUserCb &callback);
+
+    Error verifySecret(const QString &secret, bool *verified);
+    void remove(const RemoveCb &callback);
+    void signOut(const SignOutCb &callback);
+    Error store(const QVariantMap &info, const QString &appId, quint32 *id);
+    void queryUiSlot(QDBusPendingCallWatcher *call,
+                     const CredentialsUpdateCb &callback);
+    void verifyUiSlot(QDBusPendingCallWatcher *call,
+                      const VerifyUserCb &callback);
+
 Q_SIGNALS:
     void unregistered();
     //TODO - split this into the 3 separate signals(updated, removed, signed out)
@@ -85,15 +97,16 @@ Q_SIGNALS:
     void stored(SignonIdentity *identity);
 
 private Q_SLOTS:
-    void removeCompleted(QDBusPendingCallWatcher *call);
-    void signOutCompleted(QDBusPendingCallWatcher *call);
+    void removeCompleted(QDBusPendingCallWatcher *call,
+                         const RemoveCb &callback);
+    void signOutCompleted(QDBusPendingCallWatcher *call,
+                          const SignOutCb &callback);
     void onCredentialsUpdated(quint32 id);
 
 private:
     SignonIdentity(quint32 id, int timeout, SignonDaemon *parent);
     void queryUserPassword(const QVariantMap &params,
-                           const QDBusConnection &connection,
-                           const QDBusMessage &message);
+                           const VerifyUserCb &callback);
 
 private:
     quint32 m_id;

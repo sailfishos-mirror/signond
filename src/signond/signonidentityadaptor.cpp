@@ -25,6 +25,7 @@
 
 #include "signonidentityadaptor.h"
 
+#include "erroradaptor.h"
 #include "signonidentity.h"
 #include "accesscontrolmanagerhelper.h"
 
@@ -63,30 +64,54 @@ void SignonIdentityAdaptor::errorReply(const QString &name,
 
 quint32 SignonIdentityAdaptor::requestCredentialsUpdate(const QString &msg)
 {
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return 0;
     }
 
-    return m_parent->requestCredentialsUpdate(msg);
+    auto callback = [=](quint32 ret, const Error &error) {
+        if (!error) {
+            QDBusMessage dbusreply = message.createReply();
+            dbusreply << ret;
+            connection.send(dbusreply);
+        } else {
+            connection.send(ErrorAdaptor(error).createReply(message));
+        }
+    };
+    m_parent->requestCredentialsUpdate(msg, callback);
+    context.setDelayedReply(true);
+    return 0; // ignored
 }
 
 QVariantMap SignonIdentityAdaptor::getInfo()
 {
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return QVariantMap();
     }
 
-    return m_parent->getInfo();
+    SignonIdentityInfo info;
+    Error error = m_parent->getInfo(&info);
+    if (error) {
+        connection.send(ErrorAdaptor(error).createReply(message));
+    }
+    return info.toMap();
 }
 
 void SignonIdentityAdaptor::addReference(const QString &reference)
@@ -106,10 +131,9 @@ void SignonIdentityAdaptor::addReference(const QString &reference)
     QString appId =
         AccessControlManagerHelper::instance()->appIdOfPeer(connection,
                                                             message);
-    if (!m_parent->addReference(reference, appId)) {
-        /* TODO: add a lastError() method to SignonIdentity */
-        errorReply(SIGNOND_OPERATION_FAILED_ERR_NAME,
-                   SIGNOND_OPERATION_FAILED_ERR_STR);
+    Error error = m_parent->addReference(reference, appId);
+    if (error) {
+        connection.send(ErrorAdaptor(error).createReply(message));
     }
 }
 
@@ -130,83 +154,134 @@ void SignonIdentityAdaptor::removeReference(const QString &reference)
     QString appId =
         AccessControlManagerHelper::instance()->appIdOfPeer(connection,
                                                             message);
-    if (!m_parent->removeReference(reference, appId)) {
-        /* TODO: add a lastError() method to SignonIdentity */
-        errorReply(SIGNOND_OPERATION_FAILED_ERR_NAME,
-                   SIGNOND_OPERATION_FAILED_ERR_STR);
+    Error error = m_parent->removeReference(reference, appId);
+    if (error) {
+        connection.send(ErrorAdaptor(error).createReply(message));
     }
 }
 
 
 bool SignonIdentityAdaptor::verifyUser(const QVariantMap &params)
 {
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return false;
     }
 
-    return m_parent->verifyUser(params);
+    auto callback = [=](bool ret, const Error &error) {
+        if (!error) {
+            QDBusMessage dbusreply = message.createReply();
+            dbusreply << ret;
+            connection.send(dbusreply);
+        } else {
+            connection.send(ErrorAdaptor(error).createReply(message));
+        }
+    };
+    m_parent->verifyUser(params, callback);
+    context.setDelayedReply(true);
+    return false; // ignored
 }
 
 bool SignonIdentityAdaptor::verifySecret(const QString &secret)
 {
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return false;
     }
 
-    return m_parent->verifySecret(secret);
+    bool verified = false;
+    Error error = m_parent->verifySecret(secret, &verified);
+    if (error) {
+        connection.send(ErrorAdaptor(error).createReply(message));
+    }
+    return verified;
 }
 
 void SignonIdentityAdaptor::remove()
 {
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
+
     /* Access Control */
     AccessControlManagerHelper::IdentityOwnership ownership =
             AccessControlManagerHelper::instance()->isPeerOwnerOfIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id());
 
     if (ownership != AccessControlManagerHelper::IdentityDoesNotHaveOwner) {
         //Identity has an owner
         if (ownership == AccessControlManagerHelper::ApplicationIsNotOwner &&
             !AccessControlManagerHelper::instance()->isPeerKeychainWidget(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message())) {
+                                    connection,
+                                    message)) {
             securityErrorReply(__func__);
             return;
         }
     }
 
-    m_parent->remove();
+    auto callback = [=](const Error &error) {
+        if (!error) {
+            connection.send(message.createReply());
+        } else {
+            connection.send(ErrorAdaptor(error).createReply(message));
+        }
+    };
+    m_parent->remove(callback);
+    context.setDelayedReply(true);
 }
 
 bool SignonIdentityAdaptor::signOut()
 {
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
+
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    parentDBusContext().connection(),
-                                    parentDBusContext().message(),
+                                    connection,
+                                    message,
                                     m_parent->id())) {
         securityErrorReply(__func__);
         return false;
     }
 
-    return m_parent->signOut();
+    auto callback = [=](bool signedOut, const Error &error) {
+        if (!error) {
+            QDBusMessage reply = message.createReply();
+            reply << signedOut;
+            connection.send(reply);
+        } else {
+            connection.send(ErrorAdaptor(error).createReply(message));
+        }
+    };
+    m_parent->signOut(callback);
+    context.setDelayedReply(true);
+    return false; // ignored
 }
 
 quint32 SignonIdentityAdaptor::store(const QVariantMap &info)
 {
-    const QDBusConnection &connection = parentDBusContext().connection();
-    const QDBusMessage &message = parentDBusContext().message();
+    const QDBusContext &context = parentDBusContext();
+    QDBusConnection connection = context.connection();
+    const QDBusMessage &message = context.message();
 
     quint32 id = info.value(QLatin1String("Id"), SIGNOND_NEW_IDENTITY).toInt();
     /* Access Control */
@@ -233,7 +308,11 @@ quint32 SignonIdentityAdaptor::store(const QVariantMap &info)
     QString appId =
         AccessControlManagerHelper::instance()->appIdOfPeer(connection,
                                                             message);
-    return m_parent->store(info, appId);
+    Error error = m_parent->store(info, appId, &id);
+    if (error) {
+        connection.send(ErrorAdaptor(error).createReply(message));
+    }
+    return id;
 }
 
 } //namespace SignonDaemonNS
