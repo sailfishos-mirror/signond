@@ -25,7 +25,6 @@
 #define SIGNONIDENTITY_H_
 
 #include <QtCore>
-#include <QtDBus>
 
 #include "pluginproxy.h"
 
@@ -49,7 +48,7 @@ class SignonIdentityAdaptor;
  * Daemon side representation of identity.
  * @todo description.
  */
-class SignonIdentity: public SignonDisposable, protected QDBusContext
+class SignonIdentity: public SignonDisposable
 {
     Q_OBJECT
 

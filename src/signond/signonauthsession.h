@@ -47,7 +47,7 @@ class SignonAuthSessionAdaptor;
  * Daemon side representation of authentication session.
  * @todo description.
  */
-class SignonAuthSession: public QObject, protected QDBusContext
+class SignonAuthSession: public QObject
 {
     Q_OBJECT
 

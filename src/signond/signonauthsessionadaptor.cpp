@@ -32,9 +32,12 @@
 namespace SignonDaemonNS {
 
 SignonAuthSessionAdaptor::SignonAuthSessionAdaptor(SignonAuthSession *parent):
-    QDBusAbstractAdaptor(parent)
+    QObject(parent)
 {
-    setAutoRelaySignals(true);
+    QObject::connect(parent, &SignonAuthSession::unregistered,
+                     this, &SignonAuthSessionAdaptor::unregistered);
+    QObject::connect(parent, &SignonAuthSession::stateChanged,
+                     this, &SignonAuthSessionAdaptor::stateChanged);
 }
 
 SignonAuthSessionAdaptor::~SignonAuthSessionAdaptor()
@@ -44,7 +47,7 @@ SignonAuthSessionAdaptor::~SignonAuthSessionAdaptor()
 void SignonAuthSessionAdaptor::errorReply(const QString &name,
                                           const QString &message)
 {
-    const QDBusContext &context = *static_cast<QDBusContext *>(parent());
+    const QDBusContext &context = *this;
     QDBusMessage errReply = context.message().createErrorReply(name, message);
     context.connection().send(errReply);
 }
@@ -55,7 +58,7 @@ SignonAuthSessionAdaptor::queryAvailableMechanisms(
 {
     TRACE();
 
-    QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
+    QDBusContext &dbusContext = *this;
     if (AccessControlManagerHelper::pidOfPeer(dbusContext) !=
         parent()->ownerPid()) {
         TRACE() << "queryAvailableMechanisms called from peer that doesn't "
@@ -104,7 +107,7 @@ QVariantMap SignonAuthSessionAdaptor::process(const QVariantMap &sessionDataVa,
         }
     }
 
-    QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
+    QDBusContext &dbusContext = *this;
     QDBusConnection connection = dbusContext.connection();
     const QDBusMessage &message = dbusContext.message();
 
@@ -130,8 +133,7 @@ QVariantMap SignonAuthSessionAdaptor::process(const QVariantMap &sessionDataVa,
             connection.send(ErrorAdaptor(error).createReply(message));
         }
     };
-    parent()->process(sessionDataVa, allowedMechanism,
-                      PeerContext(connection, message), callback);
+    parent()->process(sessionDataVa, allowedMechanism, dbusContext, callback);
     dbusContext.setDelayedReply(true);
     return QVariantMap(); // ignored
 }
@@ -140,7 +142,7 @@ void SignonAuthSessionAdaptor::cancel()
 {
     TRACE();
 
-    QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
+    QDBusContext &dbusContext = *this;
     if (AccessControlManagerHelper::pidOfPeer(dbusContext) != parent()->ownerPid()) {
         TRACE() << "cancel called from peer that doesn't own the AuthSession "
             "object";
@@ -154,7 +156,7 @@ void SignonAuthSessionAdaptor::setId(quint32 id)
 {
     TRACE();
 
-    QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
+    QDBusContext &dbusContext = *this;
     if (AccessControlManagerHelper::pidOfPeer(PeerContext(dbusContext)) !=
         parent()->ownerPid()) {
         TRACE() << "setId called from peer that doesn't own the AuthSession "
@@ -176,7 +178,7 @@ void SignonAuthSessionAdaptor::objectUnref()
 {
     TRACE();
 
-    QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
+    QDBusContext &dbusContext = *this;
     if (AccessControlManagerHelper::pidOfPeer(dbusContext) !=
         parent()->ownerPid()) {
         TRACE() << "objectUnref called from peer that doesn't own the "

@@ -32,10 +32,13 @@
 namespace SignonDaemonNS {
 
 SignonIdentityAdaptor::SignonIdentityAdaptor(SignonIdentity *parent):
-    QDBusAbstractAdaptor(parent),
+    QObject(parent),
     m_parent(parent)
 {
-    setAutoRelaySignals(true);
+    QObject::connect(parent, &SignonIdentity::infoUpdated,
+                     this, &SignonIdentityAdaptor::infoUpdated);
+    QObject::connect(parent, &SignonIdentity::unregistered,
+                     this, &SignonIdentityAdaptor::unregistered);
 }
 
 SignonIdentityAdaptor::~SignonIdentityAdaptor()
@@ -56,15 +59,15 @@ void SignonIdentityAdaptor::securityErrorReply(const char *failedMethodName)
 void SignonIdentityAdaptor::errorReply(const QString &name,
                                        const QString &message)
 {
-    QDBusMessage msg = parentDBusContext().message();
+    QDBusMessage msg = this->message();
     msg.setDelayedReply(true);
     QDBusMessage errReply = msg.createErrorReply(name, message);
-    parentDBusContext().connection().send(errReply);
+    connection().send(errReply);
 }
 
 quint32 SignonIdentityAdaptor::requestCredentialsUpdate(const QString &msg)
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 
@@ -86,13 +89,13 @@ quint32 SignonIdentityAdaptor::requestCredentialsUpdate(const QString &msg)
         }
     };
     m_parent->requestCredentialsUpdate(msg, callback);
-    context.setDelayedReply(true);
+    setDelayedReply(true);
     return 0; // ignored
 }
 
 QVariantMap SignonIdentityAdaptor::getInfo()
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 
@@ -114,8 +117,8 @@ QVariantMap SignonIdentityAdaptor::getInfo()
 
 void SignonIdentityAdaptor::addReference(const QString &reference)
 {
-    const QDBusConnection &connection = parentDBusContext().connection();
-    const QDBusMessage &message = parentDBusContext().message();
+    const QDBusConnection &connection = this->connection();
+    const QDBusMessage &message = this->message();
 
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
@@ -136,8 +139,8 @@ void SignonIdentityAdaptor::addReference(const QString &reference)
 
 void SignonIdentityAdaptor::removeReference(const QString &reference)
 {
-    const QDBusConnection &connection = parentDBusContext().connection();
-    const QDBusMessage &message = parentDBusContext().message();
+    const QDBusConnection &connection = this->connection();
+    const QDBusMessage &message = this->message();
 
     /* Access Control */
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
@@ -159,7 +162,7 @@ void SignonIdentityAdaptor::removeReference(const QString &reference)
 
 bool SignonIdentityAdaptor::verifyUser(const QVariantMap &params)
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 
@@ -181,13 +184,13 @@ bool SignonIdentityAdaptor::verifyUser(const QVariantMap &params)
         }
     };
     m_parent->verifyUser(params, callback);
-    context.setDelayedReply(true);
+    setDelayedReply(true);
     return false; // ignored
 }
 
 bool SignonIdentityAdaptor::verifySecret(const QString &secret)
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 
@@ -209,7 +212,7 @@ bool SignonIdentityAdaptor::verifySecret(const QString &secret)
 
 void SignonIdentityAdaptor::remove()
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 
@@ -237,12 +240,12 @@ void SignonIdentityAdaptor::remove()
         }
     };
     m_parent->remove(callback);
-    context.setDelayedReply(true);
+    setDelayedReply(true);
 }
 
 bool SignonIdentityAdaptor::signOut()
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 
@@ -264,13 +267,13 @@ bool SignonIdentityAdaptor::signOut()
         }
     };
     m_parent->signOut(callback);
-    context.setDelayedReply(true);
+    setDelayedReply(true);
     return false; // ignored
 }
 
 quint32 SignonIdentityAdaptor::store(const QVariantMap &info)
 {
-    const QDBusContext &context = parentDBusContext();
+    const QDBusContext &context = *this;
     QDBusConnection connection = context.connection();
     const QDBusMessage &message = context.message();
 

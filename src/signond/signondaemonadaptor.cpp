@@ -58,11 +58,12 @@ SignonDaemonAdaptor::registerObject(const QDBusConnection &connection,
 {
     QString path = object->objectName();
 
-    if (connection.objectRegisteredAt(path) != object) {
+    QObject *registeredObject = connection.objectRegisteredAt(path);
+    if (!registeredObject || registeredObject->parent() != object) {
         QDBusConnection conn(connection);
-        (void) new typename T::Adaptor(object);
-        if (!conn.registerObject(path, object,
-                                 QDBusConnection::ExportAdaptors)) {
+        auto adaptor = new typename T::Adaptor(object);
+        if (!conn.registerObject(path, adaptor,
+                                 QDBusConnection::ExportAllContents)) {
             BLAME() << "Object registration failed:" << object <<
                 conn.lastError();
         }

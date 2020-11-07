@@ -34,8 +34,10 @@
 
 #include "accesscontrolmanagerhelper.h"
 
-#include <iostream>
+#include <QDBusPendingCallWatcher>
+#include <QDBusPendingReply>
 #include <QVariantMap>
+#include <iostream>
 
 #define SIGNON_RETURN_IF_CAM_NOT_AVAILABLE_ASYNC0() \
     if (!(CredentialsAccessManager::instance()->credentialsSystemOpened())) { \
@@ -208,9 +210,6 @@ void SignonIdentity::requestCredentialsUpdate(const QString &displayMessage,
         return;
     }
 
-    //delay dbus reply, ui interaction might take long time to complete
-    setDelayedReply(true);
-
     //create ui request to ask password
     QVariantMap uiRequest;
     uiRequest.insert(SSOUI_KEY_QUERYPASSWORD, true);
@@ -288,9 +287,6 @@ void SignonIdentity::verifyUser(const QVariantMap &params,
         return;
     }
 
-    //delay dbus reply, ui interaction might take long time to complete
-    setDelayedReply(true);
-
     //create ui request to ask password
     QVariantMap uiRequest;
     uiRequest.unite(params);
@@ -333,7 +329,6 @@ void SignonIdentity::remove(const RemoveCb &callback)
                        QLatin1String("Database error occurred.")));
         return;
     }
-    setDelayedReply(true);
     setAutoDestruct(false);
     QDBusPendingCallWatcher *watcher =
         new QDBusPendingCallWatcher(m_signonui->removeIdentityData(m_id),
@@ -381,7 +376,6 @@ void SignonIdentity::signOut(const SignOutCb &callback)
             TRACE() << "clear data failed";
         }
 
-        setDelayedReply(true);
         setAutoDestruct(false);
         QDBusPendingCallWatcher *watcher =
             new QDBusPendingCallWatcher(m_signonui->removeIdentityData(m_id),
