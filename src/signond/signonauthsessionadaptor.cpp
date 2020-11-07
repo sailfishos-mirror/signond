@@ -138,15 +138,14 @@ void SignonAuthSessionAdaptor::setId(quint32 id)
     TRACE();
 
     QDBusContext &dbusContext = *static_cast<QDBusContext *>(parent());
-    if (AccessControlManagerHelper::pidOfPeer(dbusContext) !=
+    if (AccessControlManagerHelper::pidOfPeer(PeerContext(dbusContext)) !=
         parent()->ownerPid()) {
         TRACE() << "setId called from peer that doesn't own the AuthSession "
             "object";
         return;
     }
     if (!AccessControlManagerHelper::instance()->isPeerAllowedToUseIdentity(
-                                    dbusContext.connection(),
-                                    dbusContext.message(),
+                                    PeerContext(dbusContext),
                                     id)) {
         TRACE() << "setId called with an identifier the peer is not allowed "
             "to use";

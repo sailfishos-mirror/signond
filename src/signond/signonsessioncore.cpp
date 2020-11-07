@@ -345,7 +345,8 @@ void SignonSessionCore::startProcess()
 
             foreach(QString acl, identityAclList) {
                 if (AccessControlManagerHelper::instance()->
-                    isPeerAllowedToAccess(data.m_conn, data.m_msg, acl))
+                    isPeerAllowedToAccess(PeerContext(data.m_conn, data.m_msg),
+                                          acl))
                     paramsTokenList.append(acl);
             }
 
@@ -659,10 +660,10 @@ void SignonSessionCore::processUiRequest(const QVariantMap &data)
         /* Pass some data about the requesting client */
         AccessControlManagerHelper *acm =
             AccessControlManagerHelper::instance();
-        request.m_params[SSOUI_KEY_PID] = acm->pidOfPeer(request.m_conn,
-                                                         request.m_msg);
-        request.m_params[SSOUI_KEY_APP_ID] = acm->appIdOfPeer(request.m_conn,
-                                                              request.m_msg);
+        request.m_params[SSOUI_KEY_PID] =
+            acm->pidOfPeer(PeerContext(request.m_conn, request.m_msg));
+        request.m_params[SSOUI_KEY_APP_ID] =
+            acm->appIdOfPeer(PeerContext(request.m_conn, request.m_msg));
 
         CredentialsAccessManager *camManager =
             CredentialsAccessManager::instance();

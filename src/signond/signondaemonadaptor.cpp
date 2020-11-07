@@ -130,9 +130,9 @@ void SignonDaemonAdaptor::getIdentity(const quint32 id,
     AccessControlManagerHelper *acm = AccessControlManagerHelper::instance();
     QDBusMessage msg = parentDBusContext().message();
     QDBusConnection conn = parentDBusContext().connection();
-    if (!acm->isPeerAllowedToUseIdentity(conn, msg, id)) {
+    if (!acm->isPeerAllowedToUseIdentity(PeerContext(conn, msg), id)) {
         SignOn::AccessReply *reply =
-            acm->requestAccessToIdentity(conn, msg, id);
+            acm->requestAccessToIdentity(PeerContext(conn, msg), id);
         QObject::connect(reply, SIGNAL(finished()),
                          this, SLOT(onIdentityAccessReplyFinished()));
         msg.setDelayedReply(true);
@@ -175,7 +175,7 @@ void SignonDaemonAdaptor::onIdentityAccessReplyFinished()
     AccessControlManagerHelper *acm = AccessControlManagerHelper::instance();
 
     if (!reply->isAccepted() ||
-        !acm->isPeerAllowedToUseIdentity(connection, message, id)) {
+        !acm->isPeerAllowedToUseIdentity(PeerContext(connection, message), id)) {
         securityErrorReply(connection, message);
         return;
     }
@@ -213,9 +213,9 @@ QDBusObjectPath SignonDaemonAdaptor::getAuthSessionObjectPath(const quint32 id,
 
     /* Access Control */
     if (id != SIGNOND_NEW_IDENTITY) {
-        if (!acm->isPeerAllowedToUseIdentity(conn, msg, id)) {
+        if (!acm->isPeerAllowedToUseIdentity(PeerContext(conn, msg), id)) {
             SignOn::AccessReply *reply =
-                acm->requestAccessToIdentity(conn, msg, id);
+                acm->requestAccessToIdentity(PeerContext(conn, msg), id);
             /* If the request is accepted, we'll need the method name ("type")
              * in order to proceed with the creation of the authsession. */
             reply->setProperty("type", type);
@@ -227,7 +227,7 @@ QDBusObjectPath SignonDaemonAdaptor::getAuthSessionObjectPath(const quint32 id,
     }
 
     TRACE() << "ACM passed, creating AuthSession object";
-    pid_t ownerPid = acm->pidOfPeer(conn, msg);
+    pid_t ownerPid = acm->pidOfPeer(PeerContext(conn, msg));
     SignonAuthSession *authSession = m_parent->getAuthSession(id, type, ownerPid);
     if (handleLastError(conn, msg)) return QDBusObjectPath();
 
@@ -247,13 +247,13 @@ void SignonDaemonAdaptor::onAuthSessionAccessReplyFinished()
     AccessControlManagerHelper *acm = AccessControlManagerHelper::instance();
 
     if (!reply->isAccepted() ||
-        !acm->isPeerAllowedToUseIdentity(connection, message, id)) {
+        !acm->isPeerAllowedToUseIdentity(PeerContext(connection, message), id)) {
         securityErrorReply(connection, message);
         TRACE() << "still not allowed";
         return;
     }
 
-    pid_t ownerPid = acm->pidOfPeer(connection, message);
+    pid_t ownerPid = acm->pidOfPeer(PeerContext(connection, message));
     SignonAuthSession *authSession =
         m_parent->getAuthSession(id, type, ownerPid);
     if (handleLastError(connection, message)) return;
@@ -285,8 +285,8 @@ void SignonDaemonAdaptor::queryIdentities(const QVariantMap &filter,
     /* Access Control */
     QDBusMessage msg = parentDBusContext().message();
     QDBusConnection conn = parentDBusContext().connection();
-    if (!AccessControlManagerHelper::instance()->isPeerKeychainWidget(conn,
-                                                                      msg)) {
+    if (!AccessControlManagerHelper::instance()->isPeerKeychainWidget(
+                                                    PeerContext(conn, msg))) {
         securityErrorReply();
         return;
     }
@@ -304,8 +304,8 @@ bool SignonDaemonAdaptor::clear()
     /* Access Control */
     QDBusMessage msg = parentDBusContext().message();
     QDBusConnection conn = parentDBusContext().connection();
-    if (!AccessControlManagerHelper::instance()->isPeerKeychainWidget(conn,
-                                                                      msg)) {
+    if (!AccessControlManagerHelper::instance()->isPeerKeychainWidget(
+                                                    PeerContext(conn, msg))) {
         securityErrorReply();
         return false;
     }

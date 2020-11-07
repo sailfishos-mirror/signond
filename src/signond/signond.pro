@@ -22,6 +22,7 @@ HEADERS += \
     default-secrets-storage.h \
     error.h \
     erroradapter.h \
+    peercontext.h \
     signonsessioncore.h \
     signonauthsessionadaptor.h \
     signonauthsession.h \
