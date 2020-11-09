@@ -32,13 +32,6 @@
 
 namespace SignonDaemonNS {
 
-struct RegisteredIdentity {
-    RegisteredIdentity(const QDBusConnection &connection, QObject *identity)
-        : conn(connection), ident(identity) {}
-    QDBusConnection conn;
-    QObject *ident = nullptr;
-};
-
 SignonDaemonAdaptor::SignonDaemonAdaptor(SignonDaemon *parent):
     QDBusAbstractAdaptor(parent),
     m_parent(parent)
@@ -48,7 +41,6 @@ SignonDaemonAdaptor::SignonDaemonAdaptor(SignonDaemon *parent):
 
 SignonDaemonAdaptor::~SignonDaemonAdaptor()
 {
-    qDeleteAll(m_registeredIdentities);
 }
 
 template <class T>
@@ -80,8 +72,6 @@ void SignonDaemonAdaptor::registerNewIdentity(const QString &applicationContext,
 
     QDBusConnection dbusConnection(parentDBusContext().connection());
     objectPath = registerObject(dbusConnection, identity);
-    m_registeredIdentities.append(new RegisteredIdentity(dbusConnection, identity));
-    connect(identity, SIGNAL(unregistered()), this, SLOT(onIdentityUnregistered()));
 
     SignonDisposable::destroyUnused();
 }
@@ -146,22 +136,6 @@ void SignonDaemonAdaptor::getIdentity(const quint32 id,
     objectPath = registerObject(conn, identity);
 
     SignonDisposable::destroyUnused();
-}
-
-void SignonDaemonAdaptor::onIdentityUnregistered()
-{
-    QObject *ident = sender();
-    if (!ident) {
-        return;
-    }
-
-    for (int i = 0; i < m_registeredIdentities.size(); ++i) {
-        if (m_registeredIdentities[i]->ident == ident) {
-            m_registeredIdentities[i]->conn.unregisterObject(ident->objectName());
-            delete m_registeredIdentities.takeAt(i);
-            return;
-        }
-    }
 }
 
 void SignonDaemonAdaptor::onIdentityAccessReplyFinished()

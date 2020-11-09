@@ -38,7 +38,11 @@ SignonIdentityAdaptor::SignonIdentityAdaptor(SignonIdentity *parent):
     QObject::connect(parent, &SignonIdentity::infoUpdated,
                      this, &SignonIdentityAdaptor::infoUpdated);
     QObject::connect(parent, &SignonIdentity::unregistered,
-                     this, &SignonIdentityAdaptor::unregistered);
+                     this, [this]() {
+        Q_EMIT unregistered();
+        // Destroying the adaptor also triggers unregisterObject()
+        delete this;
+    });
 }
 
 SignonIdentityAdaptor::~SignonIdentityAdaptor()
