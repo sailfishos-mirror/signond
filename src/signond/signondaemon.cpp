@@ -118,7 +118,7 @@ void SignonDaemonConfiguration::load()
         QString storagePath = QDir(cfgStoragePath).path();
         m_camConfiguration.setStoragePath(storagePath);
     } else {
-        QString xdgConfigHome = QLatin1String(qgetenv("XDG_CONFIG_HOME"));
+        QString xdgConfigHome = QString::fromLocal8Bit(qgetenv("XDG_CONFIG_HOME"));
         if (xdgConfigHome.isEmpty())
             xdgConfigHome = QDir::homePath() + QLatin1String("/.config");
         m_camConfiguration.setStoragePath(xdgConfigHome +
