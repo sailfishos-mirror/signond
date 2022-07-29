@@ -102,11 +102,13 @@ LIBS += \
 headers.files = $$HEADERS
 include( ../../common-installs-config.pri )
 
-OTHER_FILES += \
-    signond.conf \
-    setupstorage.sh
+!no_etc {
+    OTHER_FILES += \
+        signond.conf \
+        setupstorage.sh
 
-conf_file.files = $$OTHER_FILES
-conf_file.path = /etc/
+    conf_file.files = $$OTHER_FILES
+    conf_file.path = /etc/
 
-INSTALLS += conf_file
+    INSTALLS += conf_file
+}
