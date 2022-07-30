@@ -108,7 +108,7 @@ void TestAuthSession::queryMechanisms_existing_method()
 
     QCOMPARE(spy.count(), 2);
     result = spy.at(1).at(0).toStringList();
-    QCOMPARE(result.size(), 1);
+    QCOMPARE(result, QStringList { "mech1" });
 
     wantedMechs += "mech2";
 
