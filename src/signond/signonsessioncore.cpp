@@ -86,10 +86,9 @@ SignonSessionCore::SignonSessionCore(quint32 id,
     m_method(method),
     m_queryCredsUiDisplayed(false)
 {
-    m_signonui = new SignonUiAdaptor(SIGNON_UI_SERVICE,
-                                     SIGNON_UI_DAEMON_OBJECTPATH,
-                                     QDBusConnection::sessionBus());
-
+    m_signonui = new SignonUiInterface(SIGNON_UI_SERVICE,
+                                       SIGNON_UI_DAEMON_OBJECTPATH,
+                                       QDBusConnection::sessionBus());
 
     connect(CredentialsAccessManager::instance(),
             SIGNAL(credentialsSystemReady()),

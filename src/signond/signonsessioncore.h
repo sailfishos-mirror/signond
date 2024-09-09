@@ -39,7 +39,7 @@
 
 using namespace SignOn;
 
-class SignonUiAdaptor;
+class SignonUiInterface;
 
 namespace SignonDaemonNS {
 
@@ -132,7 +132,7 @@ private:
 private:
     PluginProxy *m_plugin;
     QQueue<RequestData> m_listOfRequests;
-    SignonUiAdaptor *m_signonui;
+    SignonUiInterface *m_signonui;
 
     QDBusPendingCallWatcher *m_watcher;
 

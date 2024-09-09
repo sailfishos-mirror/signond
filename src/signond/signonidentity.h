@@ -109,7 +109,7 @@ private:
 
 private:
     quint32 m_id;
-    SignonUiAdaptor *m_signonui;
+    SignonUiInterface *m_signonui;
     SignonIdentityInfo *m_pInfo;
     bool m_destroyed;
 }; //class SignonDaemon

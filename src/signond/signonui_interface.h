@@ -38,7 +38,7 @@
 /*
  * Proxy class for interface com.nokia.singlesignonui
  */
-class SignonUiAdaptor: public QDBusAbstractInterface
+class SignonUiInterface: public QDBusAbstractInterface
 {
     Q_OBJECT
 
@@ -51,11 +51,11 @@ public:
 
 public:
 
-    SignonUiAdaptor(const QString &service,
+    SignonUiInterface(const QString &service,
                     const QString &path,
                     const QDBusConnection &connection,
                     QObject *parent = 0);
-    ~SignonUiAdaptor();
+    ~SignonUiInterface();
 
 public Q_SLOTS: // METHODS
     QDBusPendingCall queryDialog(const QVariantMap &parameters);

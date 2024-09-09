@@ -27,18 +27,17 @@
 #include "SignOn/uisessiondata_priv.h"
 
 /*
- * Implementation of interface class SignonUiAdaptor
+ * Implementation of interface class SignonUiInterface
  */
-SignonUiAdaptor::SignonUiAdaptor(const QString &service,
-                                 const QString &path,
-                                 const QDBusConnection &connection,
-                                 QObject *parent):
-    QDBusAbstractInterface(service, path, staticInterfaceName(),
-                           connection, parent)
+SignonUiInterface::SignonUiInterface(const QString &service,
+                                     const QString &path,
+                                     const QDBusConnection &connection,
+                                     QObject *parent)
+    : QDBusAbstractInterface(service, path, staticInterfaceName(), connection, parent)
 {
 }
 
-SignonUiAdaptor::~SignonUiAdaptor()
+SignonUiInterface::~SignonUiInterface()
 {
 }
 
@@ -46,7 +45,7 @@ SignonUiAdaptor::~SignonUiAdaptor()
  * Open a new dialog
  * */
 
-QDBusPendingCall SignonUiAdaptor::queryDialog(const QVariantMap &parameters)
+QDBusPendingCall SignonUiInterface::queryDialog(const QVariantMap &parameters)
 {
     QList<QVariant> argumentList;
     argumentList << parameters;
@@ -58,7 +57,7 @@ QDBusPendingCall SignonUiAdaptor::queryDialog(const QVariantMap &parameters)
 /*
  * update the existing dialog
  * */
-QDBusPendingCall SignonUiAdaptor::refreshDialog(const QVariantMap &parameters)
+QDBusPendingCall SignonUiInterface::refreshDialog(const QVariantMap &parameters)
 {
     QList<QVariant> argumentList;
     argumentList << parameters;
@@ -70,7 +69,7 @@ QDBusPendingCall SignonUiAdaptor::refreshDialog(const QVariantMap &parameters)
 /*
  * cancel dialog request
  * */
-void SignonUiAdaptor::cancelUiRequest(const QString &requestId)
+void SignonUiInterface::cancelUiRequest(const QString &requestId)
 {
     QList<QVariant> argumentList;
     argumentList << requestId;
@@ -81,7 +80,7 @@ void SignonUiAdaptor::cancelUiRequest(const QString &requestId)
 /*
  * Remove any data associated with the given identity.
  * */
-QDBusPendingCall SignonUiAdaptor::removeIdentityData(quint32 id)
+QDBusPendingCall SignonUiInterface::removeIdentityData(quint32 id)
 {
     QList<QVariant> argumentList;
     argumentList << id;
@@ -90,8 +89,7 @@ QDBusPendingCall SignonUiAdaptor::removeIdentityData(quint32 id)
 }
 
 QDBusPendingCall
-SignonUiAdaptor::callWithArgumentListAndBigTimeout(const QString &method,
-                                                   const QList<QVariant> &args)
+SignonUiInterface::callWithArgumentListAndBigTimeout(const QString &method, const QList<QVariant> &args)
 {
     QDBusMessage msg = QDBusMessage::createMethodCall(service(),
                                                       path(),

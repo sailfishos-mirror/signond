@@ -87,10 +87,10 @@ SignonIdentity::SignonIdentity(quint32 id, int timeout,
                          + QString::number(incr++, 16);
     setObjectName(objectName);
 
-    m_signonui = new SignonUiAdaptor(SIGNON_UI_SERVICE,
-                                     SIGNON_UI_DAEMON_OBJECTPATH,
-                                     QDBusConnection::sessionBus(),
-                                     this);
+    m_signonui = new SignonUiInterface(SIGNON_UI_SERVICE,
+                                       SIGNON_UI_DAEMON_OBJECTPATH,
+                                       QDBusConnection::sessionBus(),
+                                       this);
 
     /* Watch for credential updates happening outside of this object (this can
      * happen on request of authentication plugins) */
