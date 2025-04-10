@@ -111,8 +111,17 @@ void BlobIOHandler::readBlob()
 {
     QDataStream in(m_readChannel);
 
+    in.startTransaction();
     QByteArray fractionBa;
     in >> fractionBa;
+
+    if (!in.commitTransaction()) {
+        setReadNotificationEnabled(true);
+        // FIXME: with next ABI break, add a timer to prevent infinite waiting
+        // if the other party behaves badly
+        return;
+    }
+
     m_blobBuffer.append(fractionBa);
 
     //Avoid infinite loops if the other party behaves badly
@@ -126,8 +135,7 @@ void BlobIOHandler::readBlob()
         QVariantMap sessionDataMap;
         sessionDataMap = byteArrayToVariantMap(m_blobBuffer);
 
-        if (m_blobSize > SIGNON_IPC_BUFFER_PAGE_SIZE)
-            setReadNotificationEnabled(false);
+        setReadNotificationEnabled(false);
 
         emit dataReceived(sessionDataMap);
     }
