@@ -6,7 +6,8 @@ TARGET = cryptsetup
 
 CONFIG += \
     plugin \
-    qt
+    qt \
+    hide_symbols
 
 HEADERS = \
     crypto-handlers.h \
@@ -26,9 +27,6 @@ SOURCES += \
 
 QT += core
 QT -= gui
-
-QMAKE_CXXFLAGS += \
-    -fvisibility=hidden
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII
 DEFINES += \

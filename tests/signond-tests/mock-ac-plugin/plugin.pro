@@ -6,7 +6,8 @@ TARGET = signon-mock-ac
 CONFIG += \
     link_pkgconfig \
     plugin \
-    qt
+    qt \
+    hide_symbols
 
 QT += \
     core \
@@ -20,9 +21,6 @@ CONFIG(enable-p2p) {
     DEFINES += ENABLE_P2P
     PKGCONFIG += dbus-1
 }
-
-QMAKE_CXXFLAGS += \
-    -fvisibility=hidden
 
 LIBS += -lsignon-extension
 INCLUDEPATH += . \

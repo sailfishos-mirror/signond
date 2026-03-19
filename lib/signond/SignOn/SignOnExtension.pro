@@ -33,8 +33,7 @@ SOURCES += \
 QT += core \
       dbus
 
-QMAKE_CXXFLAGS += \
-    -fvisibility=hidden
+CONFIG += hide_symbols
 
 # Error on undefined symbols
 QMAKE_LFLAGS += $$QMAKE_LFLAGS_NOUNDEF
