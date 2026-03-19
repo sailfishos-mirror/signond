@@ -15,8 +15,6 @@ RCC_DIR         = resources
 QMAKE_CXXFLAGS -= -Werror -Wno-write-strings
 # Disable exceptions
 CONFIG += exceptions_off
-# Use C++11
-CONFIG += c++11
 
 isEmpty(TOP_SRC_DIR) {
     TOP_SRC_DIR = $$PWD

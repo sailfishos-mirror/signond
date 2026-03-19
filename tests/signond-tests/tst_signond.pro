@@ -3,7 +3,6 @@ include(../tests.pri)
 TARGET = tst_signond
 
 CONFIG += \
-    c++11 \
     debug \
     link_pkgconfig
 
