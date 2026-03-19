@@ -36,6 +36,3 @@ contains( TEMPLATE, lib ) {
     message("====")
     message("==== NOTE: Remember to add your API headers into `headers.files' for installation!")
 }
-
-
-# End of File

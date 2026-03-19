@@ -309,4 +309,3 @@ bool KeyHandler::canAddKeyAuthorization() const
 }
 
 #include "key-handler.moc"
-

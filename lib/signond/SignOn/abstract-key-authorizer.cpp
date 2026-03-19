@@ -73,4 +73,3 @@ void AbstractKeyAuthorizer::queryKeyAuthorization(const SignOn::Key &key,
     Q_UNUSED(reason);
     emit keyAuthorizationQueried(key, Denied);
 }
-

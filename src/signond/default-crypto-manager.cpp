@@ -46,4 +46,3 @@ QString DefaultCryptoManager::fileSystemMountPath() const
 {
     return m_storagePath;
 }
-

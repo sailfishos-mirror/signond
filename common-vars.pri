@@ -20,6 +20,3 @@ PROJECT_VERSION = 8.61
 # Library version
 #-----------------------------------------------------------------------------
 LIBRARY_VERSION = 0.4
-
-# End of File
-

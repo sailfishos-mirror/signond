@@ -509,4 +509,3 @@ void CryptoManager::serializeData()
     TRACE() << "m_fileSystemType" << m_fileSystemType;
     TRACE() << "m_fileSystemSize" << m_fileSystemSize;
 }
-

@@ -66,4 +66,3 @@ bool setFilePermissions(const QString &filePath,
 
     return true;
 }
-

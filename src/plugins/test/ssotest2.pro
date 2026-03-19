@@ -13,4 +13,3 @@ headers.files = $$HEADERS
 INSTALLS += headers
 
 RESOURCES += captcha-images.qrc
-

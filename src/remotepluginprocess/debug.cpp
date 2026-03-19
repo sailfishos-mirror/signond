@@ -34,4 +34,3 @@ void debugInit()
     QString ssoDebug(qgetenv("SSO_DEBUG"));
     debugLevel = ssoDebug.toInt();
 }
-

@@ -65,7 +65,3 @@ documentation.depends  = docs
 INSTALLS              += documentation
 message("====")
 message("==== INSTALLS += documentation")
-
-
-# End of File
-

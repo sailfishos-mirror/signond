@@ -172,4 +172,3 @@ void AbstractCryptoManager::setFileSystemSetup(bool isSetup)
         d->m_fileSystemIsSetup = isSetup;
     }
 }
-

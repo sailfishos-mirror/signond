@@ -8,5 +8,3 @@ tests.depends = lib src
 include( common-installs-config.pri )
 
 include( doc/doc.pri )
-
-# End of File

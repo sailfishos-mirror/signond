@@ -41,4 +41,3 @@ include( $${TOP_SRC_DIR}/common-installs-config.pri )
 
 target.path  = $${INSTALL_LIBDIR}/signon/extensions
 INSTALLS    += target
-

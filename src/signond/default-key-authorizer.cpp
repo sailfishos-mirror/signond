@@ -45,4 +45,3 @@ void DefaultKeyAuthorizer::queryKeyAuthorization(const SignOn::Key &key,
 
     emit keyAuthorizationQueried(key, result);
 }
-

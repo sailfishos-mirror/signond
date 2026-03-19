@@ -31,4 +31,3 @@ pkgconfig.files = signond.pc
 include($${TOP_SRC_DIR}/common-pkgconfig.pri)
 
 INSTALLS += headers dbus_files pkgconfig
-

@@ -59,4 +59,3 @@ bool DBusInterface::connect(const char *name,
     return connection().connect(service(), path(), interface(),
                                 QLatin1String(name), receiver, slot);
 }
-

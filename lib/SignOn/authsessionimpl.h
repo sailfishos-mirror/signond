@@ -103,4 +103,3 @@ private:
 } //namespace SignOn
 
 #endif //AUTHSESSIONIMPL_H
-

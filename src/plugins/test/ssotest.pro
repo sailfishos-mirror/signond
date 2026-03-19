@@ -8,4 +8,3 @@ SOURCES += ssotestplugin.cpp
 
 headers.files = $$HEADERS
 INSTALLS += headers
-

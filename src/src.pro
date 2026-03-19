@@ -4,4 +4,3 @@ SUBDIRS = \
     plugins \
     remotepluginprocess \
     extensions
-
