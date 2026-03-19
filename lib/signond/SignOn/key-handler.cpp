@@ -78,7 +78,7 @@ private:
     QSet<SignOn::Key> m_insertedKeys;
     QSet<SignOn::Key> m_authorizedKeys;
 };
-};
+}
 
 void KeyHandlerPrivate::initialize(AbstractCryptoManager *cryptoManager,
                                    const KeyManagersList &keyManagers)

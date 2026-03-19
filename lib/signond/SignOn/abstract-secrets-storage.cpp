@@ -35,7 +35,7 @@ class AbstractSecretsStoragePrivate
 
 public:
     AbstractSecretsStoragePrivate(AbstractSecretsStorage *secretsStorage);
-    ~AbstractSecretsStoragePrivate() {};
+    ~AbstractSecretsStoragePrivate() {}
 
 private:
     mutable AbstractSecretsStorage *q_ptr;

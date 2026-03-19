@@ -31,7 +31,7 @@
 namespace SignOn {
     class BlobIOHandler;
     class EncryptedDevice;
-};
+}
 
 namespace SignonDaemonNS {
 

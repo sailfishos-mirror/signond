@@ -34,7 +34,7 @@ class AbstractKeyAuthorizerPrivate
 public:
     AbstractKeyAuthorizerPrivate(KeyHandler *keyHandler,
                                  AbstractKeyAuthorizer *authorizer);
-    ~AbstractKeyAuthorizerPrivate() {};
+    ~AbstractKeyAuthorizerPrivate() {}
 
 private:
     mutable AbstractKeyAuthorizer *q_ptr;

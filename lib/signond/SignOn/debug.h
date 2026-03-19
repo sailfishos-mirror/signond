@@ -67,6 +67,6 @@ namespace SignOn {
 
 void setLoggingLevel(int level);
 
-};
+}
 
 #endif // SIGNON_DEBUG_H

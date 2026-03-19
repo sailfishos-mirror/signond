@@ -35,7 +35,7 @@ class AbstractCryptoManagerPrivate
 
 public:
     AbstractCryptoManagerPrivate(AbstractCryptoManager *cryptoManager);
-    ~AbstractCryptoManagerPrivate() {};
+    ~AbstractCryptoManagerPrivate() {}
 
 private:
     mutable AbstractCryptoManager *q_ptr;

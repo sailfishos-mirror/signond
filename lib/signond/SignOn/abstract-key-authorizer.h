@@ -66,7 +66,7 @@ public:
         KeyInserted       = 1 << 1,
         StorageNeeded     = 1 << 2,
     };
-    Q_DECLARE_FLAGS(Reason, Reasons);
+    Q_DECLARE_FLAGS(Reason, Reasons)
 
     /*!
      * Constructor

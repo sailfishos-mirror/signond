@@ -46,7 +46,7 @@ public:
                        ErrorType type = NoError) {
         m_text = text; m_type = type;
     }
-    ~CredentialsDBError() {};
+    ~CredentialsDBError() {}
 
     void setType(ErrorType type) { m_type = type; }
     void setText(const QString &text) { m_text = text; }

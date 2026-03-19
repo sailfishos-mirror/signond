@@ -99,7 +99,7 @@ public:
     void closeSecretsDB();
 
     SignOn::CredentialsDBError lastError() const;
-    bool errorOccurred() const { return lastError().isValid(); };
+    bool errorOccurred() const { return lastError().isValid(); }
 
     QStringList methods(const quint32 id,
                         const QString &securityToken = QString());

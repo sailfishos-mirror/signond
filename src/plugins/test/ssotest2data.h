@@ -30,9 +30,9 @@ namespace SsoTest2PluginNS {
 class SsoTest2Data: public SignOn::SessionData
 {
 public:
-    SIGNON_SESSION_DECLARE_PROPERTY(QStringList, ChainOfStates);
-    SIGNON_SESSION_DECLARE_PROPERTY(quint32, CurrentState);
-    SIGNON_SESSION_DECLARE_PROPERTY(QStringList, ChainOfResults);
+    SIGNON_SESSION_DECLARE_PROPERTY(QStringList, ChainOfStates)
+    SIGNON_SESSION_DECLARE_PROPERTY(quint32, CurrentState)
+    SIGNON_SESSION_DECLARE_PROPERTY(QStringList, ChainOfResults)
 };
 
 }  // namespace SsoTest2PluginNS

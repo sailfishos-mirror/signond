@@ -75,7 +75,7 @@ private:
     pxProxyFactory *factory;
 };
 
-Q_GLOBAL_STATIC(QLibProxyWrapper, libProxyWrapper);
+Q_GLOBAL_STATIC(QLibProxyWrapper, libProxyWrapper)
 
 /*
     Gets the list of proxies from libproxy, converted to QUrl list.

@@ -57,7 +57,7 @@ public:
         None = 0,
         FormatStorage = 1 << 0, /*!< Formats the secure storage */
     };
-    Q_DECLARE_FLAGS(AuthorizeFlags, Authorizations);
+    Q_DECLARE_FLAGS(AuthorizeFlags, Authorizations)
 
     /*!
      * Constructor

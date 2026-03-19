@@ -57,8 +57,8 @@ public:
         QHash<quint32,QVariantMap> m_blobData;
     };
 
-    SecretsCache() {};
-    ~SecretsCache() {};
+    SecretsCache() {}
+    ~SecretsCache() {}
 
     bool lookupCredentials(quint32 id,
                            QString &username,
@@ -216,7 +216,7 @@ public:
      * last performed operation the error object is invalid.
      */
     SignOn::CredentialsDBError lastError() const;
-    bool errorOccurred() const { return lastError().isValid(); };
+    bool errorOccurred() const { return lastError().isValid(); }
     void clearError() { m_lastError.clear(); }
 
     /*!

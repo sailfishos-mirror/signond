@@ -37,7 +37,7 @@ class AccessRequestData: public QSharedData
 public:
     AccessRequestData();
     AccessRequestData(const AccessRequestData &other);
-    ~AccessRequestData() {};
+    ~AccessRequestData() {}
 
     QDBusConnection m_connection;
     QDBusMessage m_message;

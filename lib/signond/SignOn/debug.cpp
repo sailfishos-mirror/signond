@@ -34,5 +34,4 @@ SIGNON_EXPORT void setLoggingLevel(int level)
     signonLoggingLevel = level;
 }
 
-}; // namespace
-
+} // namespace
