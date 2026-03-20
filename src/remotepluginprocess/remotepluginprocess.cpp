@@ -81,7 +81,7 @@ RemotePluginProcess::createRemotePluginProcess(QString &type, QObject *parent)
 
 bool RemotePluginProcess::loadPlugin(QString &type)
 {
-    TRACE() << " loading auth library for " << type;
+    TRACE() << "loading auth library for " << type;
 
     QLibrary lib(getPluginName(type));
 

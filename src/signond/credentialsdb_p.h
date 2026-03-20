@@ -203,7 +203,7 @@ public:
      * @returns true, if the database has any tables created, false otherwise.
      */
     bool hasTables() const {
-        return m_database.tables().count() > 0 ? true : false;
+        return m_database.tables().count() > 0;
     }
 
     /*!

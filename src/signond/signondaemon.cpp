@@ -138,7 +138,6 @@ void SignonDaemonConfiguration::load()
 
     settings.beginGroup(QLatin1String("SecureStorage"));
 
-    QVariantMap storageOptions;
     foreach (const QString &key, settings.childKeys()) {
         m_camConfiguration.addSetting(key, settings.value(key));
     }

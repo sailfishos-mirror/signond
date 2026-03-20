@@ -77,7 +77,7 @@ bool AccessControlManagerHelper::isPeerAllowedToUseIdentity(
     QStringList acl = db->accessControlList(identityId);
 
     TRACE() << QString(QLatin1String("Access control list of identity: "
-                                 "%1: [%2].Tokens count: %3\t"))
+                                 "%1: [%2].Tokens count: %3"))
                                 .arg(identityId)
                                 .arg(acl.join(QLatin1String(", ")))
                                 .arg(acl.size());

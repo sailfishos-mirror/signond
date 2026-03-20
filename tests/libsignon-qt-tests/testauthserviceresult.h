@@ -35,7 +35,7 @@ class TestAuthServiceResult: public QObject
 {
     Q_OBJECT
 
-public :
+public:
     enum ResponseType
     {
         NormalResp = 0,

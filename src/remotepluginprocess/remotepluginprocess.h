@@ -124,7 +124,7 @@ private Q_SLOTS:
     void statusChanged(const AuthPluginState state, const QString &message);
     void blobIOError();
 
-Q_SIGNALS :
+Q_SIGNALS:
     void processStopped();
 };
 

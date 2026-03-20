@@ -54,7 +54,7 @@ public Q_SLOTS:
                  const QString &mechanism = 0);
     void userActionFinished(const SignOn::UiSessionData &data);
 //    void refresh(const SignOn::UiSessionData &data);
-    };
+};
 
 } //namespace PasswordPluginNS
 

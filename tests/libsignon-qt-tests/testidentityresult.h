@@ -36,7 +36,7 @@ class TestIdentityResult: public QObject
 {
     Q_OBJECT
 
-public :
+public:
     enum ResponseType
     {
         NormalResp = 0,

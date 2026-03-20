@@ -258,7 +258,6 @@ void AuthSessionImpl::errorSlot(const QDBusError &err)
         errMessage = err.message();
 
     emit m_parent->error(Error(errCode, errMessage));
-
 }
 
 void AuthSessionImpl::authenticationSlot(QDBusPendingCallWatcher *call)
