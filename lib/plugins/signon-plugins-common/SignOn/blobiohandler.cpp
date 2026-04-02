@@ -27,6 +27,7 @@
 #include <QBuffer>
 #include <QDataStream>
 #include <QDebug>
+#include <QTimer>
 
 #include "SignOn/signonplugincommon.h"
 
@@ -138,6 +139,9 @@ void BlobIOHandler::readBlob()
         setReadNotificationEnabled(false);
 
         emit dataReceived(sessionDataMap);
+    } else if (m_readChannel->bytesAvailable() > 0) {
+        // more data available already, schedule a read attempt for the next fraction
+        QTimer::singleShot(0, this, &BlobIOHandler::readBlob);
     }
 }
 
